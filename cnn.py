@@ -9,32 +9,28 @@ class CNNnet(torch.nn.Module):
         """
         super(CNNnet, self).__init__()
         self.conv1 = torch.nn.Conv2d(1, 28, kernel_size=(4,10), stride=1, padding=0)
+
         self.conv2 = torch.nn.Conv2d(28, 30, kernel_size=(4,10), stride=1, padding=0)
         self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
-        self.linear1 = torch.nn.Linear(30 * 2 * 15, 28) 
+        self.linear1 = torch.nn.Linear(30 * 2 * 15, 16) 
+        self.fully_connected = torch.nn.Linear(16, 28) 
 
-        # torch.nn.Conv2d(1, 10, kernel_size=3, stride=1),
-        # torch.nn.ReLU(),
-        # torch.nn.Conv2d(10, 20, kernel_size=3, stride=1),
-        # torch.nn.Linear(5, D_out),
-
-    def forward(self, x):
+    def forward(self, traning_data):
         """
         In the forward function we accept a Tensor of input data and we must return
         a Tensor of output data. We can use Modules defined in the constructor as
         well as arbitrary operators on Tensors.
         """
-        h_relu = self.conv1(x).clamp(min=0)
-        #print(h_relu.size())
-        y_pred = self.conv2(h_relu).clamp(min=0)  #28,28,1,1 -> 28,28,4,10!!
+        conv1_relu = self.conv1(traning_data).clamp(min=0)
+        conv2_relu = self.conv2(conv1_relu).clamp(min=0)  
 
-        pooled = self.pool1(y_pred) #[28, 30, 2, 15]
-       
-        pooled = pooled.view(-1, 30 * 2 * 15)
-        lin = self.linear1(pooled)
-        print(lin.size())
-        return lin
+        pool_layer = self.pool1(conv2_relu) 
+        reshaped_pool = pool_layer.view(-1, 30 * 2 * 15)
+
+        linear_layer = self.linear1(reshaped_pool)
+        fc_layer = self.fully_connected(linear_layer)
+        return fc_layer
 
 
 
