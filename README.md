@@ -1,6 +1,6 @@
 ## Enabling Neural Network Inference for Smart IoT Edge Sensor Nodes
 
-#Installation
+Installation
 
 Make sure python3 is installed (https://www.python.org/downloads/)
 
