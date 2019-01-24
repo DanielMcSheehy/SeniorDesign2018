@@ -17,8 +17,8 @@ class CNNnet(torch.nn.Module):
 
     def forward(self, traning_data):
         conv1_relu = self.conv1(traning_data).clamp(min=0) #Relu
+        
         conv2_relu = self.conv2(conv1_relu).clamp(min=0) #Relu
-
         pool_layer = self.pool1(conv2_relu) 
         reshaped_pool = pool_layer.view(-1, 30 * 2 * 15)
 
