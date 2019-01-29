@@ -1,4 +1,5 @@
 from cnn import CNNnet
+from ds_cnn import DS_CNNnet
 from train import train, test
 import torch
 
@@ -13,3 +14,9 @@ model = CNNnet()
 train(model, example_batch, 64, 50, example_truth_vector, 1e-4)
 
 test(model, example_batch, example_truth_vector)
+
+# test Depthwise seperable convolutional network
+
+train(DS_CNNnet(), example_batch, 64, 50, example_truth_vector, 1e-4)
+
+test(DS_CNNnet(), example_batch, example_truth_vector)

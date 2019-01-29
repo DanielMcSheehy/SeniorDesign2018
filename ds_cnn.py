@@ -1,15 +1,15 @@
 import torch
 
-class CNNnet(torch.nn.Module):
+class DS_CNNnet(torch.nn.Module):
     def __init__(self): #TODO: Make Network Not hardcoded
         """
         Initalize a Convolutional Neural Network with multiple layers. 
         Includes Relu's and pooling. 
         """
-        super(CNNnet, self).__init__()
-        self.conv1 = torch.nn.Conv2d(1, 28, kernel_size=(4,10), stride=1, padding=0)
+        super(DS_CNNnet, self).__init__()
+        self.conv1 = torch.nn.Conv2d(1, 28, kernel_size=(4,10), stride=1, padding=0, groups=28)
 
-        self.conv2 = torch.nn.Conv2d(28, 30, kernel_size=(4,10), stride=1, padding=0)
+        self.conv2 = torch.nn.Conv2d(28, 30, kernel_size=(4,10), stride=1, padding=0, groups=28)
         self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
         self.linear1 = torch.nn.Linear(30 * 2 * 15, 16) 
