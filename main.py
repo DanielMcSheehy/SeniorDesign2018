@@ -23,8 +23,11 @@ model = CNNnet()
 
 # test(DS_CNNnet(), example_batch, example_truth_vector)
 audio_manager = AudioPreprocessor()
-y, sr = audio_manager.load_audio_file('./example_audio.wav')
+y, sr = audio_manager.load_audio_file('./example_audio/example_audio.wav')
 test = audio_manager.compute_mfccs(y, sr)
-print(test)
+#print(test)
 
-print(audio_manager.get_size_of_mfcc_output(test))
+example_audio = torch.from_numpy(test)
+print(audio_manager.get_size_of_mfcc_output(test)) #torch.Size([20, 2584])
+train(model, example_audio, 1, 50, example_truth_vector, 1e-4)
+
