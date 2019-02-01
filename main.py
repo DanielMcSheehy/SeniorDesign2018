@@ -29,5 +29,11 @@ test = audio_manager.compute_mfccs(y, sr)
 
 example_audio = torch.from_numpy(test)
 print(audio_manager.get_size_of_mfcc_output(test)) #torch.Size([20, 2584])
-train(model, example_audio, 1, 50, example_truth_vector, 1e-4)
+
+tensor = example_audio[None, None, :, :]
+tensor = tensor.expand(64, 1, 10, 49)
+print(tensor.size())
+
+
+train(model, tensor.float(), 1, 50, example_truth_vector, 1e-4)
 
