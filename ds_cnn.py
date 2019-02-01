@@ -1,19 +1,18 @@
 import torch
 
 class DS_CNNnet(torch.nn.Module):
-    def __init__(self): #TODO: Make Network Not hardcoded
+    def __init__(self,in_channels,out_channels,kernel_size=1,stride=1,padding=0,dilation=1,bias=False):
         """
         Initalize a Convolutional Neural Network with multiple layers. 
         Includes Relu's and pooling. 
         """
-        super(DS_CNNnet, self).__init__()
-        self.conv1 = torch.nn.Conv2d(1, 28, kernel_size=(4,10), stride=1, padding=0, groups=28)
-
-        self.conv2 = torch.nn.Conv2d(28, 30, kernel_size=(4,10), stride=1, padding=0, groups=28)
-        self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-
-        self.linear1 = torch.nn.Linear(30 * 2 * 15, 16) 
-        self.fully_connected = torch.nn.Linear(16, 28) 
+        self.conv1 = nn.Conv2d(in_channels,in_channels,kernel_size,stride,padding,dilation,groups=in_channels,bias=bias)
+        self.pointwise = nn.Conv2d(in_channels,out_channels,1,1,0,1,1,bias=bias)
+     
+    def forward(self,x):
+        x = self.conv1(x)
+        x = self.pointwise(x)
+        return x
 
     def forward(self, traning_data):
         conv1_relu = self.conv1(traning_data).clamp(min=0) #Relu

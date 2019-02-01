@@ -1,7 +1,9 @@
+import torch
 from cnn import CNNnet
 from ds_cnn import DS_CNNnet
 from train import train, test
-import torch
+from handle_audio import AudioPreprocessor
+
 
 #! Batch size: 64
 example_batch = torch.randn(64,1,10,49)
@@ -11,12 +13,18 @@ example_truth_vector = torch.autograd.Variable(torch.LongTensor(64).random_(5))
 model = CNNnet()
 
 #     net,    batch,  batch_size,n_epochs, truth_vector,   learning_rate
-train(model, example_batch, 64, 50, example_truth_vector, 1e-4)
+# train(model, example_batch, 64, 50, example_truth_vector, 1e-4)
 
-test(model, example_batch, example_truth_vector)
+# test(model, example_batch, example_truth_vector)
 
-# test Depthwise seperable convolutional network
+# # test Depthwise seperable convolutional network
 
-train(DS_CNNnet(), example_batch, 64, 50, example_truth_vector, 1e-4)
+# train(DS_CNNnet(), example_batch, 64, 50, example_truth_vector, 1e-4)
 
-test(DS_CNNnet(), example_batch, example_truth_vector)
+# test(DS_CNNnet(), example_batch, example_truth_vector)
+audio_manager = AudioPreprocessor()
+y, sr = audio_manager.load_audio_file('./example_audio.wav')
+test = audio_manager.compute_mfccs(y, sr)
+print(test)
+
+print(audio_manager.get_size_of_mfcc_output(test))
