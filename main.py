@@ -35,5 +35,9 @@ tensor = tensor.expand(64, 1, 10, 49)
 print(tensor.size())
 
 
-train(model, tensor.float(), 1, 50, example_truth_vector, 1e-4)
+train(model, tensor.float(), 64, 5, example_truth_vector, 1e-4)
 
+batch_array = []
+for _ in range(64):
+    batch_array.append(example_audio[None, None, :, :])
+test(model, batch_array, example_truth_vector)
