@@ -19,15 +19,13 @@ def train(net, batch, batch_size, n_epochs, truth_vector, learning_rate):
 
 #Todo: Find accuracy equation:
 def test(net, testing_batch_array, truth_vector):
-    print("balloonsdflksd")
+    batch_size = 1
     criterion = torch.nn.CrossEntropyLoss()
-    for batch in testing_batch_array:
+    n_correct, n_total = 0, 0
+    for i, batch in enumerate(testing_batch_array):
         # Forward pass: Compute predicted y by passing x to the model
         answer = net(batch)
-        n_correct += (torch.max(answer, 1)[1].view(batch.label.size()) == batch.label).sum().item()
-        n_total += batch.batch_size
+        n_correct += (torch.max(answer, 1)[1].view(batch_size) == truth_vector[i]).sum().item()
+        n_total += batch_size
         train_acc = 100. * n_correct/n_total
         print("Traning accuracy: ", train_acc)
-        # Compute and print loss
-        loss = criterion(y_pred, truth_vector)
-        #print("Loss of model: ", loss.item())

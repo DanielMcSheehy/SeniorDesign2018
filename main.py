@@ -9,6 +9,7 @@ from handle_audio import AudioPreprocessor
 example_batch = torch.randn(64,1,10,49)
 # Have to be a long one demensional tensor (For CEL)
 example_truth_vector = torch.autograd.Variable(torch.LongTensor(64).random_(5))
+
 # Construct our model by instantiating the class defined above
 model = CNNnet()
 
@@ -24,11 +25,11 @@ model = CNNnet()
 # test(DS_CNNnet(), example_batch, example_truth_vector)
 audio_manager = AudioPreprocessor()
 y, sr = audio_manager.load_audio_file('./example_audio/example_audio.wav')
-test = audio_manager.compute_mfccs(y, sr)
+t = audio_manager.compute_mfccs(y, sr)
 #print(test)
 
-example_audio = torch.from_numpy(test)
-print(audio_manager.get_size_of_mfcc_output(test)) #torch.Size([20, 2584])
+example_audio = torch.from_numpy(t)
+print(audio_manager.get_size_of_mfcc_output(t)) #torch.Size([20, 2584])
 
 tensor = example_audio[None, None, :, :]
 tensor = tensor.expand(64, 1, 10, 49)
@@ -37,7 +38,10 @@ print(tensor.size())
 
 train(model, tensor.float(), 64, 5, example_truth_vector, 1e-4)
 
+
+#example_truth_vector = torch.autograd.Variable(torch.LongTensor(64).random_(5))
+
 batch_array = []
 for _ in range(64):
-    batch_array.append(example_audio[None, None, :, :])
+    batch_array.append(example_audio[None, None, :, :].float())
 test(model, batch_array, example_truth_vector)
