@@ -1,4 +1,5 @@
 import torch
+import np
 from cnn import CNNnet
 from ds_cnn import DS_CNNnet
 from train import train, test
@@ -37,6 +38,13 @@ wanted_words = ['on', 'off', 'stop']
 data, labelDictionary = audio_manager.extract_audio_files('/Users/dsm/Downloads/speech_commands_v0.01', wanted_words)
 
 mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(data, 64)
+
+for i, batch in enumerate(mini_batch_list):
+    print("Training")
+    batch = torch.from_numpy(np.array(batch)).float()
+    batch = batch[:, None, :, :]
+    label = torch.stack(mini_batch_label[i]).long()
+    train(model, batch, 64, 50, label, 1e-4)
 d
 
 

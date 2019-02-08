@@ -13,7 +13,7 @@ class CNNnet(torch.nn.Module):
         self.pool1 = torch.nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
         self.linear1 = torch.nn.Linear(30 * 2 * 15, 16) 
-        self.fully_connected = torch.nn.Linear(16, 28) 
+        self.fully_connected = torch.nn.Linear(16, 3) 
 
     def forward(self, traning_data):
         conv1_relu = self.conv1(traning_data).clamp(min=0) #Relu

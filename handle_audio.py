@@ -17,6 +17,7 @@ class AudioPreprocessor(object):
         y, sr = librosa.load(path, sr=self.sr)
         return y,sr
 
+    #Returns np.ndarray
     def compute_mfccs(self, data):
         data = librosa.feature.mfcc(
             data,
@@ -25,6 +26,9 @@ class AudioPreprocessor(object):
             n_fft=self.n_fft,
             n_mfcc = self.n_mfcc
         )
+        if data.shape[0] != 10 or data.shape[1] != 49: 
+            length = 49 - data.shape[1]
+            data = np.concatenate((data, np.zeros((10,length))), axis = 1)
         return data
     
     def convert_to_minibatches(self, data, batch_size):

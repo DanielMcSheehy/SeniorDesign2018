@@ -9,7 +9,7 @@ def train(net, batch, batch_size, n_epochs, truth_vector, learning_rate):
         # Forward pass: Compute predicted y by passing x to the model
         y_pred = net(batch)
         # Compute and print loss
-        loss = criterion(y_pred, truth_vector)
+        loss = criterion(y_pred, torch.max(truth_vector, 1)[1])
         print("Epoch: ", epoch, " Loss: ", loss.item())
 
         # Zero gradients, perform a backward pass, and update the weights.
