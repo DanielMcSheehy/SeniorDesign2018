@@ -7,11 +7,11 @@ from torch.autograd import Variable
 
 class AudioPreprocessor(object):
     def __init__(self, sr=16000, n_fft=1012, hop_length=327, n_mfcc=10): #! TODO (327->320)
-            super().__init__()
-            self.sr = sr
-            self.n_fft = n_fft
-            self.hop_length = hop_length
-            self.n_mfcc = n_mfcc
+        super().__init__()
+        self.sr = sr
+        self.n_fft = n_fft
+        self.hop_length = hop_length
+        self.n_mfcc = n_mfcc
 
     def load_audio_file(self, path):
         y, sr = librosa.load(path, sr=self.sr)
@@ -27,6 +27,16 @@ class AudioPreprocessor(object):
         )
         return data
     
+    def convert_to_minibatches(self, data, batch_size):
+        batch_list = []
+        label_list = []
+        for item in data: 
+            batch_list.append(item['input'])
+            label_list.append(item['label'])
+
+        mini_batch_list = [batch_list[i * batch_size:(i + 1) * batch_size] for i in range((len(batch_list) + batch_size - 1) // batch_size )] 
+        mini_batch_label = [label_list[i * batch_size:(i + 1) * batch_size] for i in range((len(label_list) + batch_size - 1) // batch_size )] 
+        return mini_batch_list, mini_batch_label
 
     def to_one_hot(self, y, depth=None):
         y_tensor = y.data if isinstance(y, Variable) else y
@@ -50,13 +60,15 @@ class AudioPreprocessor(object):
             for directory in directories:
                 if directory in wanted_words:
                     print(path+ "/"+ directory)
-                    for root, directories, files in os.walk(path+ "/"+ directory):
+                    for root, directories, files in os.walk(path + "/" + directory):
                         for file in files: 
+                            audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
                             input_obj = {
-                                "input": self.compute_mfccs(file),
+                                "input": self.compute_mfccs(audio),
                                 "label": label[directory],
+                            }
                             data.append(input_obj)
-        return data
+        return data, label
 
     def get_size_of_mfcc_output(self, data):
         return Variable(IntTensor(data)).size()

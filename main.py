@@ -32,7 +32,12 @@ model = CNNnet()
 
 audio_manager = AudioPreprocessor()
 wanted_words = ['on', 'off', 'stop']
-audio_manager.extract_audio_files('/Users/dsm/Downloads/speech_commands_v0.01', wanted_words)
+# Data: array of {"input": tensor(10,41), "label": One hot encoded}
+# Label: label[word] = one hot encoded vector
+data, labelDictionary = audio_manager.extract_audio_files('/Users/dsm/Downloads/speech_commands_v0.01', wanted_words)
+
+mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(data, 64)
+d
 
 
 
