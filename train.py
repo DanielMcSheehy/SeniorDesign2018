@@ -17,7 +17,6 @@ def train(net, batch, batch_size, n_epochs, truth_vector, learning_rate):
         loss.backward()
         optimizer.step()
 
-#Todo: Find accuracy equation:
 def test(net, testing_batch_array, truth_vector):
     batch_size = 1
     criterion = torch.nn.CrossEntropyLoss()
