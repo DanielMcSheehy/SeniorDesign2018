@@ -2,6 +2,7 @@ import librosa
 import os.path
 import numpy as np
 import torch
+import random
 from torch import IntTensor
 from torch.autograd import Variable
 
@@ -53,7 +54,6 @@ class AudioPreprocessor(object):
     def extract_audio_files(self, path, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
         ground_truth_vector= self.to_one_hot(ground_truth_vector)
-        print(ground_truth_vector)
 
         data = []
         label = {}
@@ -72,6 +72,7 @@ class AudioPreprocessor(object):
                                 "label": label[directory],
                             }
                             data.append(input_obj)
+        random.shuffle(data)
         return data, label
 
     def get_size_of_mfcc_output(self, data):

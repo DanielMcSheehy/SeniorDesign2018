@@ -30,7 +30,6 @@ model = CNNnet()
 
 
 
-
 audio_manager = AudioPreprocessor()
 wanted_words = ['on', 'off', 'stop']
 # Data: array of {"input": tensor(10,41), "label": One hot encoded}
@@ -44,8 +43,10 @@ for i, batch in enumerate(mini_batch_list):
     batch = torch.from_numpy(np.array(batch)).float()
     batch = batch[:, None, :, :]
     label = torch.stack(mini_batch_label[i]).long()
-    train(model, batch, 64, 50, label, 1e-4)
-d
+    train(model, batch, 64, 1, label, 1e-4)
+    if i % 10 == 0: 
+        test(model, batch, label, 64)
+m
 
 
 

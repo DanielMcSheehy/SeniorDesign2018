@@ -17,14 +17,14 @@ def train(net, batch, batch_size, n_epochs, truth_vector, learning_rate):
         loss.backward()
         optimizer.step()
 
-def test(net, testing_batch_array, truth_vector):
-    batch_size = 1
+def test(net, testing_batch_array, truth_vector, batch_size):
     criterion = torch.nn.CrossEntropyLoss()
     n_correct, n_total = 0, 0
     for i, batch in enumerate(testing_batch_array):
         # Forward pass: Compute predicted y by passing x to the model
-        answer = net(batch)
-        n_correct += (torch.max(answer, 1)[1].view(batch_size) == truth_vector[i]).sum().item()
+        answer = net(batch[None, :, :, :])
+        label = torch.max(truth_vector[i], 0)[1].view(1)
+        n_correct += (torch.max(answer, 1)[1].view(1) == label).sum().item()
         n_total += batch_size
-        train_acc = 100. * n_correct/n_total
+        train_acc = 100. * n_correct/batch_size
         print("Traning accuracy: ", train_acc)
