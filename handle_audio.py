@@ -22,15 +22,28 @@ class AudioPreprocessor(object):
     def compute_mfccs(self, data):
         data = librosa.feature.mfcc(
             data,
-            sr=self.sr,
-            hop_length=self.hop_length,
-            n_fft=self.n_fft,
+            sr = self.sr,
+            hop_length = self.hop_length,
+            n_fft = self.n_fft,
             n_mfcc = self.n_mfcc
         )
+        # If extracted audio shape is not exact, pad it with zeros:
         if data.shape[0] != 10 or data.shape[1] != 49: 
             length = 49 - data.shape[1]
             data = np.concatenate((data, np.zeros((10,length))), axis = 1)
         return data
+
+    def split_data_set(self, data, training_size_percentage, 
+                        testing_size_percentage, validation_size_percentage):
+        training_set_size = round(training_size_percentage*len(data))
+        testing_set_size = round(testing_size_percentage*len(data))
+        validation_set_size = round(testing_size_percentage*len(data))
+
+        training_set = data[:training_set_size]
+        testing_set = data[training_set_size: testing_set_size]
+        validation_set = data[:validation_set_size]
+        return training_set, testing_set, validation_set
+
     
     def convert_to_minibatches(self, data, batch_size):
         batch_list = []
@@ -38,10 +51,12 @@ class AudioPreprocessor(object):
         for item in data: 
             batch_list.append(item['input'])
             label_list.append(item['label'])
-
-        mini_batch_list = [batch_list[i * batch_size:(i + 1) * batch_size] for i in range((len(batch_list) + batch_size - 1) // batch_size )] 
-        mini_batch_label = [label_list[i * batch_size:(i + 1) * batch_size] for i in range((len(label_list) + batch_size - 1) // batch_size )] 
-        return mini_batch_list, mini_batch_label
+        if batch_size == 1:
+            return batch_list, label_list
+        else: 
+            mini_batch_list = [batch_list[i * batch_size:(i + 1) * batch_size] for i in range((len(batch_list) + batch_size - 1) // batch_size )] 
+            mini_batch_label = [label_list[i * batch_size:(i + 1) * batch_size] for i in range((len(label_list) + batch_size - 1) // batch_size )] 
+            return mini_batch_list, mini_batch_label
 
     def to_one_hot(self, y, depth=None):
         y_tensor = y.data if isinstance(y, Variable) else y

@@ -16,60 +16,35 @@ example_truth_vector = torch.autograd.Variable(torch.LongTensor(64).random_(5))
 # Construct our model by instantiating the class defined above
 model = CNNnet()
 
-#     net,    batch,  batch_size,n_epochs, truth_vector,   learning_rate
-# train(model, example_batch, 64, 50, example_truth_vector, 1e-4)
-
-# test(model, example_batch, example_truth_vector)
-
-# # test Depthwise seperable convolutional network
-
-# train(DS_CNNnet(), example_batch, 64, 50, example_truth_vector, 1e-4)
-
-# test(DS_CNNnet(), example_batch, example_truth_vector)
-
-
-
-
 audio_manager = AudioPreprocessor()
 wanted_words = ['on', 'off', 'stop']
 # Data: array of {"input": tensor(10,41), "label": One hot encoded}
 # Label: label[word] = one hot encoded vector
-data, labelDictionary = audio_manager.extract_audio_files('/Users/dsm/Downloads/speech_commands_v0.01', wanted_words)
 
-mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(data, 64)
+path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
+data, labelDictionary = audio_manager.extract_audio_files(path_to_dataset, wanted_words)
 
-for i, batch in enumerate(mini_batch_list):
-    print("Training")
-    batch = torch.from_numpy(np.array(batch)).float()
-    batch = batch[:, None, :, :]
-    label = torch.stack(mini_batch_label[i]).long()
-    train(model, batch, 64, 1, label, 1e-4)
-    if i % 10 == 0: 
-        test(model, batch, label, 64)
+training_set, testing_set, validation_set = audio_manager.split_data_set(data, .80, .10, .10)
+
+mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(training_set, 64)
+
+# needed to reshape/organize training set: 
+training_list, training_label_list = audio_manager.convert_to_minibatches(testing_set, len(testing_set))
+
+num_epochs = 100
+for epoch in range(num_epochs):
+    for i, batch in enumerate(mini_batch_list):
+        batch = torch.from_numpy(np.array(batch)).float()
+        batch = batch[:, None, :, :]
+        label = torch.stack(mini_batch_label[i]).long()
+        train(model, batch, 64,label, 1e-4)
+
+    if epoch % 10 == 0: 
+        testing_set = torch.from_numpy(np.array(training_list[0])).float()
+        testing_set = testing_set[:, None, :, :]
+        label = torch.stack(training_label_list[0]).long()
+        test(model, testing_set, label)
+
+print("Final validation of model:")
+test(model, validation_set, label)
 m
-
-
-
-# y, sr = audio_manager.load_audio_file('./example_audio/example_audio.wav')
-# t = audio_manager.compute_mfccs(y, sr)
-# #print(test)
-
-# audio_manager.extract_audio_files()
-
-# example_audio = torch.from_numpy(t)
-# print(audio_manager.get_size_of_mfcc_output(t))
-
-# tensor = example_audio[None, None, :, :] #Size: (1, 10, 49)
-# tensor = tensor.expand(64, 1, 10, 49)
-
-
-# train(model, tensor.float(), 64, 50, example_truth_vector, 1e-4)
-
-
-
-# batch_array = []
-# for _ in range(64):
-#     batch_array.append(example_audio[None, None, :, :].float())
-# test(model, batch_array, example_truth_vector)
-
-# test(model, tensor, )
