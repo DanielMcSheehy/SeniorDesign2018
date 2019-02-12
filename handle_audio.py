@@ -7,7 +7,26 @@ from torch import IntTensor
 from torch.autograd import Variable
 
 class AudioPreprocessor(object):
-    def __init__(self, sr=16000, n_fft=1012, hop_length=327, n_mfcc=10): #! TODO (327->320)
+    def __init__(self, sr=16000, n_fft=1012, hop_length=327, n_mfcc=10): 
+        """Audio preprocessor interface that can upload downloaded audio files,
+            do feature extraction (mfcc), and reorganize data to be used in 
+            neural networks
+
+        Note:
+            The default attributes are to make sure audio features extraction
+            stays organized and consistant, do not alter. 
+
+            Output size of data should be (10, 49)
+
+        Args:
+            
+
+        Attributes:
+            sr (int): Sampling rate to convert audio.
+            n_fft (int): 
+            hop_length (int): window size that goes through audio length.
+            n_mfcc(int): Number of output features in feature extractions
+        """
         super().__init__()
         self.sr = sr
         self.n_fft = n_fft
@@ -15,11 +34,34 @@ class AudioPreprocessor(object):
         self.n_mfcc = n_mfcc
 
     def load_audio_file(self, path):
+        """Loads audio file from downloaded audio file path 
+
+        Args:
+            path (str): Location of folder with .wav files.
+
+        Returns:
+            y (bytes): encoded audio file.
+
+        """
         y, sr = librosa.load(path, sr=self.sr)
         return y,sr
 
-    #Returns np.ndarray
     def compute_mfccs(self, data):
+        """Computes mfcc feature extraction of data from 
+            self.load_audio_file.
+
+        Note: 
+            If window size cuts off at end, instead of having a 
+            diffent size output, the output is filled in with 
+            zeros to maintain 10,49 shape.
+
+        Args:
+            data (bytes): byte of loaded audio file from librosa library. 
+
+        Returns:
+            data (np.ndarray of shape (10,49)): 
+
+        """
         data = librosa.feature.mfcc(
             data,
             sr = self.sr,
@@ -35,28 +77,61 @@ class AudioPreprocessor(object):
 
     def split_data_set(self, data, training_size_percentage, 
                         testing_size_percentage, validation_size_percentage):
+        """Splits dataset into training, testing, and validation data sets. 
+            Splits it up by percents: 80%, 10%, 10% => (.8, .1, .1)
+
+        Args:
+            x_size_percentage(float): decimal of percetange of data to split into
+
+        Returns:
+            x_set (array of size (x, 10, 49)): returns total data split into percentage
+
+        """
         training_set_size = round(training_size_percentage*len(data))
         testing_set_size = round(testing_size_percentage*len(data))
         validation_set_size = round(testing_size_percentage*len(data))
 
         training_set = data[:training_set_size]
-        testing_set = data[training_set_size: testing_set_size]
+        testing_set = data[training_set_size: training_set_size + testing_set_size]
         validation_set = data[:validation_set_size]
         return training_set, testing_set, validation_set
 
     
     def convert_to_minibatches(self, data, batch_size):
+        """Converts array of Mfcc feature extracted data into
+            batch_size sized batches
+
+        Args:
+            data (array of arrays with shape(10,49)): Mfcc extracted data.
+            batch_size (int): Size of batches (ex: 64)
+
+        Note: 
+            If batch_size is 1, it will just return 
+            all the data in one giant tensor instead of
+            array of batches
+
+        Returns:
+            A string of updated factom state.
+
+        """
         batch_list = []
         label_list = []
         for item in data: 
-            batch_list.append(item['input'])
-            label_list.append(item['label'])
-        if batch_size == 1:
-            return batch_list, label_list
+            batch = torch.from_numpy(np.array(item['input'])).float()
+            batch = batch[None, :, :]
+            label = item['label']
+            batch_list.append(batch)
+            label_list.append(label)
+        a = batch_list
+        stacked_batchs = torch.stack(batch_list)
+        stacked_labels = torch.stack(label_list)
+        # Instead of array of sized batches, just returns entire stacked tensor
+        if batch_size == 1: 
+            return stacked_batchs, stacked_labels
         else: 
-            mini_batch_list = [batch_list[i * batch_size:(i + 1) * batch_size] for i in range((len(batch_list) + batch_size - 1) // batch_size )] 
-            mini_batch_label = [label_list[i * batch_size:(i + 1) * batch_size] for i in range((len(label_list) + batch_size - 1) // batch_size )] 
-            return mini_batch_list, mini_batch_label
+            batch_list = torch.split(stacked_batchs, 64)
+            label_list = torch.split(stacked_labels, 64)
+            return batch_list, label_list
 
     def to_one_hot(self, y, depth=None):
         y_tensor = y.data if isinstance(y, Variable) else y
