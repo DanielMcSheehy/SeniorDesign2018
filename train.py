@@ -25,5 +25,5 @@ def test(net, testing_batch_array, truth_vector):
         label = torch.max(truth_vector[i], 0)[1].view(1)
         n_correct += (torch.max(answer, 1)[1].view(1) == label).sum().item()
         n_total += batch_size
-        train_acc = 100. * n_correct/batch_size
-        print("Training accuracy: ", train_acc)
+    train_acc = 100. * n_correct/batch_size
+    print("Training accuracy: ", train_acc)

@@ -20,19 +20,20 @@ mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(trainin
 
 # needed to reshape/organize training set: 
 #! Not converting it to minibatch, just reorganizing the data
-training_list, training_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
+testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
 
 # needed to reshape/organize validation set: 
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
 
 num_epochs = 100
-for epoch in range(num_epochs):
+for epoch_num in range(num_epochs):
     for i, batch in enumerate(mini_batch_list):
-        train(model, batch, 64,mini_batch_label[i], 1e-4)
+        train(model, batch, 64, mini_batch_label[i], 1e-4)
 
-    if epoch % 10 == 0: 
-        test(model, testing_set, training_label_list)
+    if epoch_num % 10 == 0: 
+        print("Epoch #", epoch_num)
+        test(model, testing_list, testing_label_list)
 
 print("Final validation of model:")
-test(model, validation_set, label)
+test(model, validation_list, validation_label_list)
 
