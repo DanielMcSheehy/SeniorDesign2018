@@ -31,7 +31,7 @@ for epoch in range(num_epochs):
         train(model, batch, 64,mini_batch_label[i], 1e-4)
 
     if epoch % 10 == 0: 
-        test(model, testing_set, training_label_list[i])
+        test(model, testing_set, training_label_list)
 
 print("Final validation of model:")
 test(model, validation_set, label)
