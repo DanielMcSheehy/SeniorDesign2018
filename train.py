@@ -20,7 +20,7 @@ def test(net, testing_batch_array, truth_vector):
     criterion = torch.nn.CrossEntropyLoss()
     n_correct, n_total = 0, 0
     for i, batch in enumerate(testing_batch_array):
-        # Forward pass: Compute predicted y by passing x to the model
+        # Forward pass: Compute predicted y by passing batch to the model
         answer = net(batch[None, :, :, :])
         label = torch.max(truth_vector[i], 0)[1].view(1)
         n_correct += (torch.max(answer, 1)[1].view(1) == label).sum().item()

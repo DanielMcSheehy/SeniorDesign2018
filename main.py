@@ -16,9 +16,10 @@ data, labelDictionary = audio_manager.extract_audio_files(path_to_dataset, wante
 
 training_set, testing_set, validation_set = audio_manager.split_data_set(data, .80, .10, .10)
 
+# Mini batches of training data:
 mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(training_set, 64)
 
-# needed to reshape/organize training set: 
+# needed to reshape/organize testing set: 
 #! Not converting it to minibatch, just reorganizing the data
 testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
 

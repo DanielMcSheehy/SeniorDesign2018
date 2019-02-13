@@ -164,6 +164,3 @@ class AudioPreprocessor(object):
                             data.append(input_obj)
         random.shuffle(data)
         return data, label
-
-    def get_size_of_mfcc_output(self, data):
-        return Variable(IntTensor(data)).size()
