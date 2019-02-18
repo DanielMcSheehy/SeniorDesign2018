@@ -43,10 +43,4 @@ class DS_CNNnet(torch.nn.Module):
         fc_layer = self.fully_connected(linear_layer)
         return fc_layer
 
-#Test:
-sample_data = torch.randn(64, 1, 10, 49)
-model = DS_CNNnet()
-
-model.forward(sample_data)
-
 
