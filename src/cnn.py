@@ -25,3 +25,4 @@ class CNNnet(torch.nn.Module):
         linear_layer = self.linear1(reshaped_pool)
         fc_layer = self.fully_connected(linear_layer)
         return fc_layer
+
