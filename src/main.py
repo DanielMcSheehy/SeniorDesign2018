@@ -28,11 +28,12 @@ validation_list, validation_label_list = audio_manager.convert_to_minibatches(va
 
 num_epochs = 100
 for epoch_num in range(num_epochs):
+    mini_batch_list, mini_batch_label = audio_manager.augment_data(mini_batch_list, mini_batch_label, epoch_num)
     for i, batch in enumerate(mini_batch_list):
         train(model, batch, 64, mini_batch_label[i], 1e-4)
 
     if epoch_num % 10 == 0: 
-        print("Epoch #", epoch_num)
+        print("Epoch #", epoch_num + 1)
         test(model, testing_list, testing_label_list)
 
 print("Final validation of model:")
