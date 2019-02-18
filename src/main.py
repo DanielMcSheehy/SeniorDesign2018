@@ -6,7 +6,8 @@ from train import train, test
 from handle_audio import AudioPreprocessor
 
 # Construct our model by instantiating the class defined above
-model = CNNnet()
+#model = CNNnet()
+model = DS_CNNnet()
 
 audio_manager = AudioPreprocessor()
 wanted_words = ['on', 'off', 'stop']
