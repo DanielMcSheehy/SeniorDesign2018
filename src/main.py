@@ -38,5 +38,8 @@ for epoch_num in range(num_epochs):
         test(model, testing_list, testing_label_list)
 
 print("Final validation of model:")
-test(model, validation_list, validation_label_list)
+final_acc = test(model, validation_list, validation_label_list)
+text_file = open("Output.txt", "w")
+text_file.write("Accurarcy: %s" % final_acc)
+text_file.close()
 

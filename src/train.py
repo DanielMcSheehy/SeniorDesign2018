@@ -27,3 +27,5 @@ def test(net, testing_batch_array, truth_vector):
         n_total += batch_size
     train_acc = 100. * n_correct/batch_size
     print("Training accuracy: ", train_acc)
+    return train_acc
+   
