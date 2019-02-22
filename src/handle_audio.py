@@ -116,6 +116,12 @@ class AudioPreprocessor(object):
         """
         batch_list = []
         label_list = []
+
+        # If data is not an array, converts it to one. 
+        if not type(data) in (tuple, list):
+            print('not an array: ')
+            data = [data]
+
         for item in data: 
             batch = torch.from_numpy(np.array(item['input'])).float()
             batch = batch[None, :, :]
@@ -150,6 +156,15 @@ class AudioPreprocessor(object):
         y_one_hot = torch.zeros(y_tensor.size()[0], depth).scatter_(1, y_tensor, 1)
         y_one_hot = y_one_hot.view(*(tuple(y.shape) + (-1,)))
         return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
+    
+    def get_single_batch(self, path, label_arr):
+        audio =  self.load_audio_file('/users/dsm/code/SeniorDesign/SeniorDesign2018/example_audio/example_on.wav')[0]
+        input_obj = {
+            "input": self.compute_mfccs(audio),
+            "label": torch.tensor(label_arr),
+        }
+        batch, label = self.convert_to_minibatches(input_obj, 1)
+        return batch, label
 
     def extract_audio_files(self, path, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
