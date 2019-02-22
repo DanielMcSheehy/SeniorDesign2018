@@ -1,16 +1,23 @@
 import torch
 import np
 from cnn import CNNnet
-#from ds_cnn import DS_CNNnet
-from new_ds_cnn import DS_CNNnet
+from ds_cnn import DS_CNNnet
 from train import train, test
 from handle_audio import AudioPreprocessor
 
-# Construct our model by instantiating the class defined above
-#model = CNNnet()
-
-
 audio_manager = AudioPreprocessor()
+
+available_words = ['right', 'eight', 'cat', 
+    'tree', 'bed', 'happy', 
+    'go', 'dog', 'no', 
+    'wow', 'nine', 'left', 
+    'stop', 'three', '_background_noise_', 
+    'sheila', 'one', 'bird', 
+    'zero', 'seven', 'up', 
+    'marvin', 'two', 'house', 
+    'down', 'six', 'yes', 
+    'on', 'five', 'off', 'four']
+
 wanted_words = ['on', 'off', 'stop']
 
 model = DS_CNNnet(len(wanted_words))
