@@ -133,6 +133,15 @@ class AudioPreprocessor(object):
             label_list = torch.split(stacked_labels, 64)
             return batch_list, label_list
 
+    def augment_data(self, batch_list, label_list, random_seed):
+        augmented_batch_list = []
+        for btx, batch in enumerate(batch_list):
+            batch = batch + Variable(torch.randn(batch.size())* 0.2)
+            augmented_batch_list.append(batch)
+        #random.Random(random_seed).shuffle(augmented_batch_list)
+        #random.Random(random_seed).shuffle(label_list)
+        return augmented_batch_list, label_list
+
     def to_one_hot(self, y, depth=None):
         y_tensor = y.data if isinstance(y, Variable) else y
         y_tensor = y_tensor.type(torch.LongTensor).view(-1, 1)
