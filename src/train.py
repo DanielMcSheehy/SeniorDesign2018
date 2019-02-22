@@ -3,7 +3,7 @@ import torch
 def train(net, batch, batch_size,truth_vector, learning_rate):
     criterion = torch.nn.CrossEntropyLoss()
     #Todo: Switch from SGD
-    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     
     # Forward pass: Compute predicted y by passing x to the model
     y_pred = net(batch)

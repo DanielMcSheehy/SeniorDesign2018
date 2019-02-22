@@ -39,7 +39,12 @@ for epoch_num in range(num_epochs):
 
 print("Final validation of model:")
 final_acc = test(model, validation_list, validation_label_list)
+
+#Externally Record Accuracy when done
 text_file = open("Output.txt", "w")
-text_file.write("Accurarcy: %s" % final_acc)
+text_file.write("Accuracy: %s" % final_acc)
 text_file.close()
+
+#Externally Save Model:
+torch.save(model, '../saved_models')
 
