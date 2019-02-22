@@ -1,18 +1,22 @@
 import torch
 import np
 from cnn import CNNnet
-from ds_cnn import DS_CNNnet
+#from ds_cnn import DS_CNNnet
+from new_ds_cnn import DS_CNNnet
 from train import train, test
 from handle_audio import AudioPreprocessor
 
 # Construct our model by instantiating the class defined above
 #model = CNNnet()
-model = DS_CNNnet()
+
 
 audio_manager = AudioPreprocessor()
 wanted_words = ['on', 'off', 'stop']
 
+model = DS_CNNnet(len(wanted_words))
+
 path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
+#path_to_dataset = '/home/utdesign/code/audio_files/'
 data, labelDictionary = audio_manager.extract_audio_files(path_to_dataset, wanted_words)
 
 training_set, testing_set, validation_set = audio_manager.split_data_set(data, .80, .10, .10)
