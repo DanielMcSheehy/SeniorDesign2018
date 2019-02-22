@@ -138,6 +138,7 @@ class AudioPreprocessor(object):
         for btx, batch in enumerate(batch_list):
             batch = batch + Variable(torch.randn(batch.size())* 0.2)
             augmented_batch_list.append(batch)
+        #! Randomize Data between Epochs:
         #random.Random(random_seed).shuffle(augmented_batch_list)
         #random.Random(random_seed).shuffle(label_list)
         return augmented_batch_list, label_list
