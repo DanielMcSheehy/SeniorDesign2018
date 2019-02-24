@@ -1,5 +1,6 @@
 import torch
 import np
+from functools import reduce
 from cnn import CNNnet
 from ds_cnn import DS_CNNnet
 from train import train, test
@@ -45,7 +46,7 @@ for epoch_num in range(num_epochs):
         train(model, batch, 64, mini_batch_label[i], 1e-4)
 
     if epoch_num % 10 == 0: 
-        print("Epoch #", epoch_num + 1)
+        print("Epoch #", epoch_num)
         test(model, testing_list, testing_label_list)
 
 print("Final validation of model:")
@@ -57,5 +58,6 @@ text_file.write("Accuracy: %s" % final_acc)
 text_file.close()
 
 #Externally Save Model:
-torch.save(model, '../saved_models')
+saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words )
+torch.save(model, '../saved_models/' + 'ds_cnn_' + saved_model_name)
 
