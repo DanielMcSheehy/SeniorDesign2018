@@ -2,4 +2,3 @@ src/__pycache__/
 .vscode/
 example_audio/
 src/test.py
-example_audio/

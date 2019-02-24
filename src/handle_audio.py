@@ -119,7 +119,6 @@ class AudioPreprocessor(object):
 
         # If data is not an array, converts it to one. 
         if not type(data) in (tuple, list):
-            print('not an array: ')
             data = [data]
 
         for item in data: 
@@ -158,7 +157,7 @@ class AudioPreprocessor(object):
         return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
     
     def get_single_batch(self, path, label_arr):
-        audio =  self.load_audio_file('/users/dsm/code/SeniorDesign/SeniorDesign2018/example_audio/example_on.wav')[0]
+        audio =  self.load_audio_file(path)[0]
         input_obj = {
             "input": self.compute_mfccs(audio),
             "label": torch.tensor(label_arr),
