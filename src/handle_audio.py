@@ -48,10 +48,14 @@ class AudioPreprocessor(object):
         return y,sr
 
     def feature_extraction(self, data):
-        extracted_data = {}
+        extracted_data = []
         for audio in data: 
-            extracted_data['input'] = self.compute_mfccs(audio['input'])
-            extracted_data['label'] = audio['label']
+            extracted_data.append(
+                {
+                    'input': self.compute_mfccs(audio['input']),
+                    'label': audio['label'],
+                }
+            )
         return extracted_data
 
     def compute_mfccs(self, data):

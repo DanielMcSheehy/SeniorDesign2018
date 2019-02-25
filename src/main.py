@@ -48,8 +48,9 @@ validation_list, validation_label_list = audio_manager.convert_to_minibatches(va
 
 num_epochs = 100
 for epoch_num in range(num_epochs):
-    # Mini batches of training data:
-    train_set = audio_manager.augment_data(training_set)
+    #train_set = audio_manager.augment_data(training_set)
+    train_set = training_set
+    # Problem is here: 
     train_batch = audio_manager.feature_extraction(train_set)
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
