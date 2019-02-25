@@ -5,6 +5,7 @@ import torch
 import random
 from torch import IntTensor
 from torch.autograd import Variable
+import sound_augmentation as sound_augmentation
 
 class AudioPreprocessor(object):
     def __init__(self, sr=16000, n_fft=1012, hop_length=327, n_mfcc=10): 
@@ -45,6 +46,13 @@ class AudioPreprocessor(object):
         """
         y, sr = librosa.load(path, sr=self.sr)
         return y,sr
+
+    def feature_extraction(self, data):
+        extracted_data = {}
+        for audio in data: 
+            extracted_data['input'] = self.compute_mfccs(audio['input'])
+            extracted_data['label'] = audio['label']
+        return extracted_data
 
     def compute_mfccs(self, data):
         """Computes mfcc feature extraction of data from 
@@ -127,7 +135,6 @@ class AudioPreprocessor(object):
             label = item['label']
             batch_list.append(batch)
             label_list.append(label)
-        a = batch_list
         stacked_batchs = torch.stack(batch_list)
         stacked_labels = torch.stack(label_list)
         # Instead of array of sized batches, just returns entire stacked tensor
@@ -138,15 +145,13 @@ class AudioPreprocessor(object):
             label_list = torch.split(stacked_labels, 64)
             return batch_list, label_list
 
-    def augment_data(self, batch_list, label_list, random_seed):
-        augmented_batch_list = []
-        for btx, batch in enumerate(batch_list):
-            batch = batch + Variable(torch.randn(batch.size())* 0.2)
-            augmented_batch_list.append(batch)
+    def augment_data(self, data):
+        for btx, batch in enumerate(data):
+            batch['input'] = sound_augmentation.augment_sound(batch['input'])
         #! Randomize Data between Epochs:
         #random.Random(random_seed).shuffle(augmented_batch_list)
         #random.Random(random_seed).shuffle(label_list)
-        return augmented_batch_list, label_list
+        return data
 
     def to_one_hot(self, y, depth=None):
         y_tensor = y.data if isinstance(y, Variable) else y
@@ -182,7 +187,7 @@ class AudioPreprocessor(object):
                         for file in files: 
                             audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
                             input_obj = {
-                                "input": self.compute_mfccs(audio),
+                                "input": audio,
                                 "label": label[directory],
                             }
                             data.append(input_obj)

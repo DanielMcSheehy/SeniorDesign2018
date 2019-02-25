@@ -37,26 +37,30 @@ data, labelDictionary = audio_manager.extract_audio_files(path_to_dataset, wante
 
 training_set, testing_set, validation_set = audio_manager.split_data_set(data, .80, .10, .10)
 
-# Mini batches of training data:
-mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(training_set, 64)
-
 # needed to reshape/organize testing set: 
 #! Not converting it to minibatch, just reorganizing the data
+testing_set = audio_manager.feature_extraction(testing_set)
 testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
 
 # needed to reshape/organize validation set: 
+validation_set = audio_manager.feature_extraction(validation_set)
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
 
 num_epochs = 100
 for epoch_num in range(num_epochs):
-    mini_batch_list, mini_batch_label = audio_manager.augment_data(mini_batch_list, mini_batch_label, epoch_num)
+    # Mini batches of training data:
+    train_set = audio_manager.augment_data(training_set)
+    train_batch = audio_manager.feature_extraction(train_set)
+    
+    mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
+    
     for i, batch in enumerate(mini_batch_list):
         if IS_CUDA: #! TODO: Refactor
             batch, mini_batch_label = (Variable(data)).cuda(), (Variable(mini_batch_label[i])).cuda()
             train(model, batch, 64, mini_batch_label, 1e-4)
         else: 
             train(model, batch, 64, mini_batch_label[i], 1e-4)
-            
+
     if epoch_num % 10 == 0: 
         print("Epoch #", epoch_num)
         test(model, testing_list, testing_label_list)

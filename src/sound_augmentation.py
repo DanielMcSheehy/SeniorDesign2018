@@ -1,18 +1,22 @@
 import np
 import random
 import os.path
-from handle_audio import AudioPreprocessor
+import librosa
 from pysndfx import AudioEffectsChain
 import sox #apt install sox
 
 
-audio_manager = AudioPreprocessor()
+def augment_sound(input_audio):
+    with_shift = shift(input_audio)
+    with_bg_noise = add_background_noise(with_shift)
+    with_reverb = add_reverb(with_bg_noise)
+    return with_reverb
 
 def add_background_noise(input_audio):
     fn = os.path.join(os.path.dirname(__file__), '../_background_noise_/')
     background_audio_files = os.listdir(fn)
     background_audio_path = background_audio_files[random.randint(0, len(background_audio_files)-1)]
-    bg_noise = audio_manager.load_audio_file(fn + background_audio_path)[0]
+    bg_noise, sr = librosa.load(fn + background_audio_path, sr=16000)
     random_noise_level = random.uniform(0, 0.2)
     result = (1 - random_noise_level) * input_audio + random_noise_level * bg_noise[:len(input_audio)]
     return result
