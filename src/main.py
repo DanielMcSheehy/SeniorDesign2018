@@ -50,14 +50,13 @@ num_epochs = 100
 for epoch_num in range(num_epochs):
     #train_set = audio_manager.augment_data(training_set)
     train_set = training_set
-    # Problem is here: 
     train_batch = audio_manager.feature_extraction(train_set)
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
     
     for i, batch in enumerate(mini_batch_list):
         if IS_CUDA: #! TODO: Refactor
-            batch, mini_batch_label = (Variable(data)).cuda(), (Variable(mini_batch_label[i])).cuda()
+            batch, mini_batch_label = (Variable(batch)).cuda(), (Variable(mini_batch_label[i])).cuda()
             train(model, batch, 64, mini_batch_label, 1e-4)
         else: 
             train(model, batch, 64, mini_batch_label[i], 1e-4)
