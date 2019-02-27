@@ -1,5 +1,6 @@
 import torch
 import np
+import time
 from functools import reduce
 from torch.autograd import Variable
 from cnn import CNNnet
@@ -48,14 +49,15 @@ validation_list, validation_label_list = audio_manager.convert_to_minibatches(va
 
 num_epochs = 100
 for epoch_num in range(num_epochs):
-    #train_set = audio_manager.augment_data(training_set)
+    # Have to redefine so we don't over write "traning_set":
     train_set = training_set
+    train_set = audio_manager.augment_data(train_set)
     train_batch = audio_manager.feature_extraction(train_set)
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
     
     for i, batch in enumerate(mini_batch_list):
-        if IS_CUDA: #! TODO: Refactor
+        if IS_CUDA: 
             batch, mini_batch_label = (Variable(batch)).cuda(), (Variable(mini_batch_label[i])).cuda()
             train(model, batch, 64, mini_batch_label, 1e-4)
         else: 
@@ -65,15 +67,18 @@ for epoch_num in range(num_epochs):
         print("Epoch #", epoch_num)
         test(model, testing_list, testing_label_list)
 
-print("Final validation of model:")
+
+saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words )
+
+print("Final validation of model " + saved_model_name +  ":")
 final_acc = test(model, validation_list, validation_label_list)
 
+time = localtime = time.asctime( time.localtime(time.time()) )
 #Externally Record Accuracy when done
-text_file = open("Output.txt", "w")
-text_file.write("Accuracy: %s" % final_acc)
+text_file = open(saved_model_name + ".txt", "w")
+text_file.write("Accuracy: %s" % final_acc + '\n' + time)
 text_file.close()
 
 #Externally Save Model:
-saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words )
 torch.save(model, '../saved_models/' + 'ds_cnn_' + saved_model_name)
 
