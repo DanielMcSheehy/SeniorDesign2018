@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cd src
-python3 main.py
+nohup python3 -u ./main.py 
 
