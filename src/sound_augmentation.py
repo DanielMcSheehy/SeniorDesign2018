@@ -9,6 +9,7 @@ import sox #apt install sox
 def augment_sound(input_audio):
     with_shift = shift(input_audio)
     with_bg_noise = add_background_noise(with_shift)
+    #Very slow: (Might not be used in future...)
     with_reverb = add_reverb(with_bg_noise)
     return with_reverb
 
@@ -37,9 +38,9 @@ def add_reverb(input_audio):
     AudioEffectsChain()
     .reverb(reverberance=50 * reverb_fac,
                hf_damping=50 * reverb_fac,
-               room_scale=100 * reverb_fac,
-               stereo_depth=100 * reverb_fac,
-               pre_delay=20 * reverb_fac,
+               room_scale=100,
+               stereo_depth=100,
+               pre_delay=20,
                wet_gain=0,
                wet_only=False)
     )

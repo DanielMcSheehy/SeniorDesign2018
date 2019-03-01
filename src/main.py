@@ -54,7 +54,7 @@ num_epochs = 100
 for epoch_num in range(num_epochs):
     # Have to redefine so we don't over write "traning_set":
     train_set = training_set
-    #train_set = audio_manager.augment_data(train_set)
+    train_set = audio_manager.augment_data(train_set)
     train_batch = audio_manager.feature_extraction(train_set)
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
@@ -78,7 +78,11 @@ for epoch_num in range(num_epochs):
 saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words )
 
 print("Final validation of model " + saved_model_name +  ":")
-final_acc = test(model, validation_list, validation_label_list)
+if IS_CUDA:
+    validation_list_cuda, validation_label_list_cuda = (Variable(validation_list)).cuda(), (Variable(validation_label_list)).cuda()
+    final_acc = test(model, testing_list_cuda, testing_label_list_cuda)
+else: 
+    final_acc = test(model, validation_list, validation_label_list)
 
 time = localtime = time.asctime( time.localtime(time.time()) )
 #Externally Record Accuracy when done
