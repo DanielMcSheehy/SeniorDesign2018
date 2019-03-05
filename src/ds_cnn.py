@@ -21,6 +21,8 @@ class DS_CNNnet(torch.nn.Module):
         self.conv5 = torch.nn.Conv2d(64, 64, kernel_size = (3,3), stride = 1, padding = 1,  dilation = 1, groups = 64)
         self.pointwise5 = torch.nn.Conv2d(64,64,1,1,0,1,1)
 
+        self.dropout = torch.nn.Dropout(0.3)
+
         self.pool1 = torch.nn.MaxPool2d(kernel_size = 2, stride = 2, padding=0)
         self.fully_connected = torch.nn.Linear(64*3*20, output_size) 
     
@@ -39,7 +41,9 @@ class DS_CNNnet(torch.nn.Module):
         conv5_relu = self.conv5(pointwise4).clamp(min=0) #Relu
         pointwise5 = self.pointwise5(conv5_relu)
         
-        pool_layer = self.pool1(pointwise5) 
+        drop_out = self.dropout(pointwise5)
+
+        pool_layer = self.pool1(drop_out) 
         reshaped_pool = pool_layer.view(-1, 64*3*20)
 
         fully_connected = self.fully_connected(reshaped_pool)

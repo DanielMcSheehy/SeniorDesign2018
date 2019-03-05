@@ -24,6 +24,7 @@ wanted_words = ['on', 'off', 'stop',
     'down', 'left', 'right',
     'go', 'one', 'two', 'three']
 
+
 # Make false if not using GPU
 IS_CUDA = False
 

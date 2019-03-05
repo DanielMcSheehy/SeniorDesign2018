@@ -2,4 +2,5 @@ src/__pycache__/
 .vscode/
 .DS_Store
 example_audio/
+room_impulse_response_
 src/test.py
