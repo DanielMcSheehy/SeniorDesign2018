@@ -156,8 +156,8 @@ class AudioPreprocessor(object):
         if batch_size == 1: 
             return stacked_batchs, stacked_labels
         else: 
-            batch_list = torch.split(stacked_batchs, 64)
-            label_list = torch.split(stacked_labels, 64)
+            batch_list = torch.split(stacked_batchs, batch_size)
+            label_list = torch.split(stacked_labels, batch_size)
             return batch_list, label_list
 
     def augment_data(self, data):

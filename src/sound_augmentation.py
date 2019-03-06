@@ -11,8 +11,9 @@ def augment_sound(input_audio):
     # https://www.iks.rwth-aachen.de/en/research/tools-downloads/databases/aachen-impulse-response-database/
     with_shift = shift(input_audio)
     with_bg_noise = add_background_noise(with_shift)
-    #Very slow: (Might not be used in future...)
-    with_reverb = add_reverb(with_bg_noise)
+    #Very slow: (Might not be used in future..)
+    # with_reverb = add_reverb(with_bg_noise)
+    with_reverb = with_bg_noise
     return with_reverb
 
 def add_background_noise(input_audio):
@@ -27,7 +28,7 @@ def add_background_noise(input_audio):
 
 def shift(input_audio):
     # Percentage to be shifted: 
-    timeshift_fac = 0.3 *2*(np.random.uniform()-0.5)  # up to 20% of length
+    timeshift_fac = np.random.uniform(-0.15, 0.15) # up to 15% of length
     start = int(input_audio.shape[0] * timeshift_fac)
     if (start > 0):
         result = np.pad(input_audio,(start,0),mode='constant')[0:input_audio.shape[0]]
@@ -39,13 +40,14 @@ def add_reverb(input_audio):
     reverb_fac = random.uniform(0, 1)
     fx = (
     AudioEffectsChain()
-    .reverb(reverberance=50 * reverb_fac,
-               hf_damping=50 * reverb_fac,
-               room_scale=100,
-               stereo_depth=100,
-               pre_delay=20,
-               wet_gain=0,
-               wet_only=False)
+    .reverb( 
+            reverberance=50 * reverb_fac,
+            hf_damping=50 * reverb_fac,
+            room_scale=100,
+            stereo_depth=100,
+            pre_delay=20,
+            wet_gain=0,
+            wet_only=False)
     )
     return fx(input_audio)
 

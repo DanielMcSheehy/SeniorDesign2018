@@ -20,9 +20,11 @@ available_words = ['right', 'eight', 'cat',
     'down', 'six', 'yes', 
     'on', 'five', 'off', 'four']
 
-wanted_words = ['on', 'off', 'stop', 
-    'down', 'left', 'right',
-    'go', 'one', 'two', 'three']
+# wanted_words = ['on', 'off', 'stop', 
+#     'down', 'left', 'right',
+#     'go', 'one', 'two', 'three']
+
+wanted_words = ['one', 'two', 'three']
 
 
 # Make false if not using GPU
@@ -51,21 +53,23 @@ validation_set = audio_manager.feature_extraction(validation_set)
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
 
 print('Training')
-num_epochs = 100
+num_epochs = 1000
+learning_rate = 5e-4
+
 for epoch_num in range(num_epochs):
     # Have to redefine so we don't over write "traning_set":
     train_set = training_set
     train_set = audio_manager.augment_data(train_set)
     train_batch = audio_manager.feature_extraction(train_set)
     
-    mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 64)
+    mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 100)
     
     for i, batch in enumerate(mini_batch_list):
         if IS_CUDA: 
             batch, label = (Variable(batch)).cuda(), (Variable(mini_batch_label[i])).cuda()
-            train(model, batch, 64, label, 1e-4)
+            train(model, batch, 64, label, learning_rate)
         else: 
-            train(model, batch, 64, mini_batch_label[i], 1e-4)
+            train(model, batch, 64, mini_batch_label[i], learning_rate)
 
     if epoch_num % 10 == 0: 
         print("Epoch #", epoch_num)
@@ -74,6 +78,10 @@ for epoch_num in range(num_epochs):
             test(model, testing_list_cuda, testing_label_list_cuda)
         else: 
             test(model, testing_list, testing_label_list)
+
+    # If halfway done through traning reduce learning rate
+    if round(num_epochs/epoch_num) == 2: 
+        learning_rate = 1e-4
 
 
 saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words )
