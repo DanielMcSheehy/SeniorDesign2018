@@ -7,6 +7,7 @@ from cnn import CNNnet
 from ds_cnn import DS_CNNnet
 from train import train, test
 from handle_audio import AudioPreprocessor
+from sound_augmentation import load_background_audio
 
 audio_manager = AudioPreprocessor()
 
@@ -53,15 +54,17 @@ validation_set = audio_manager.feature_extraction(validation_set)
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
 
 
+background_audio = load_background_audio()
+
 num_epochs = 1000
 learning_rate = 5e-4 #goes to 1e-4 after halfway being done with training
 
 for epoch_num in range(num_epochs):
-    print('Training on epoch #', epoch_num)
+    print('Training on epoch #', epoch_num, ' time: ', time.asctime( time.localtime(time.time()) ))
     # Have to redefine so we don't over write "training_set":
     train_set = training_set
     # Shuffles data, adds background noise, shifting, and possibly reverb
-    train_set = audio_manager.augment_data(train_set)
+    train_set = audio_manager.augment_data(train_set, background_audio)
     train_batch = audio_manager.feature_extraction(train_set)
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 100)

@@ -160,9 +160,9 @@ class AudioPreprocessor(object):
             label_list = torch.split(stacked_labels, batch_size)
             return batch_list, label_list
 
-    def augment_data(self, data):
+    def augment_data(self, data, background_audio):
         for btx, batch in enumerate(data):
-            batch['input'] = sound_augmentation.augment_sound(batch['input'])
+            batch['input'] = sound_augmentation.augment_sound(batch['input'], background_audio)
         #! Randomize Data between Epochs:
         random.shuffle(data)
         return data
