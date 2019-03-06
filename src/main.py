@@ -52,13 +52,15 @@ testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_
 validation_set = audio_manager.feature_extraction(validation_set)
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
 
-print('Training')
+
 num_epochs = 1000
-learning_rate = 5e-4
+learning_rate = 5e-4 #goes to 1e-4 after halfway being done with training
 
 for epoch_num in range(num_epochs):
-    # Have to redefine so we don't over write "traning_set":
+    print('Training on epoch #', epoch_num)
+    # Have to redefine so we don't over write "training_set":
     train_set = training_set
+    # Shuffles data, adds background noise, shifting, and possibly reverb
     train_set = audio_manager.augment_data(train_set)
     train_batch = audio_manager.feature_extraction(train_set)
     
@@ -72,14 +74,14 @@ for epoch_num in range(num_epochs):
             train(model, batch, 64, mini_batch_label[i], learning_rate)
 
     if epoch_num % 10 == 0: 
-        print("Epoch #", epoch_num)
+        print("Testing Epoch #", epoch_num)
         if IS_CUDA:
             testing_list_cuda, testing_label_list_cuda = (Variable(testing_list)).cuda(), (Variable(testing_label_list)).cuda()
             test(model, testing_list_cuda, testing_label_list_cuda)
         else: 
             test(model, testing_list, testing_label_list)
 
-    # If halfway done through traning reduce learning rate
+    # If halfway done through traning reduce learning rate:
     if round(num_epochs/(epoch_num + 1)) == 2: 
         learning_rate = 1e-4
 

@@ -164,8 +164,7 @@ class AudioPreprocessor(object):
         for btx, batch in enumerate(data):
             batch['input'] = sound_augmentation.augment_sound(batch['input'])
         #! Randomize Data between Epochs:
-        #random.Random(random_seed).shuffle(augmented_batch_list)
-        #random.Random(random_seed).shuffle(label_list)
+        random.shuffle(data)
         return data
 
     def to_one_hot(self, y, depth=None):
