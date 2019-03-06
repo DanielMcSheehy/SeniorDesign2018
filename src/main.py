@@ -80,7 +80,7 @@ for epoch_num in range(num_epochs):
             test(model, testing_list, testing_label_list)
 
     # If halfway done through traning reduce learning rate
-    if round(num_epochs/epoch_num) == 2: 
+    if round(num_epochs/(epoch_num + 1)) == 2: 
         learning_rate = 1e-4
 
 
