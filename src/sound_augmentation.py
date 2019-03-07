@@ -27,14 +27,18 @@ def load_background_audio():
 
 def add_background_noise(input_audio, background_audio):
     #TODO: Gaussian distribution num = min(10, max(0, random.gauss(3, 4)))
-    chosen_background_audio = background_audio[random.randint(0, len(background_audio)-1)]
-    random_noise_level = random.uniform(0, 0.1)
-    result = (1 - random_noise_level) * input_audio + random_noise_level * chosen_background_audio[:len(input_audio)]
+    add_background_noise = True if random.uniform(0, 1) > 0.2 else False
+    if add_background_noise:
+        chosen_background_audio = background_audio[random.randint(0, len(background_audio)-1)]
+        random_noise_level = random.uniform(0, 0.1)
+        result = (1 - random_noise_level) * input_audio + random_noise_level * chosen_background_audio[:len(input_audio)]
+    else:   
+        result = input_audio
     return result
 
 def shift(input_audio):
     # Percentage to be shifted: 
-    timeshift_fac = np.random.uniform(-0.15, 0.15) # up to 15% of length
+    timeshift_fac = np.random.uniform(0, 0.10) # up to 10% of length
     start = int(input_audio.shape[0] * timeshift_fac)
     if (start > 0):
         result = np.pad(input_audio,(start,0),mode='constant')[0:input_audio.shape[0]]
