@@ -1,4 +1,5 @@
 import librosa
+import os
 import os.path
 import numpy as np
 import torch
@@ -79,11 +80,11 @@ class AudioPreprocessor(object):
             data (np.ndarray of shape (10,49)): 
 
         """
+        # Test computational load of this or Hamming feature extraction:s
         D = np.abs(librosa.stft(data, window=self.window, n_fft=self.n_fft, win_length=self.win_length, hop_length=self.hop_length))**2
         S = librosa.feature.melspectrogram(S=D, y=data, n_mels=self.n_mels, fmin=self.fmin, fmax=self.fmax)
         extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
-
-        # Test computational load of this or Hamming feature extraction:s
+       
         # extracted_features = librosa.feature.mfcc(
         #     data,
         #     sr = self.sr,
@@ -207,3 +208,7 @@ class AudioPreprocessor(object):
                             data.append(input_obj)
         random.shuffle(data)
         return data, label
+
+    def benchmark(self):
+        CPU_Pct=str(os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
+        print("CPU Usage = " + CPU_Pct)

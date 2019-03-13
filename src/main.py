@@ -1,6 +1,7 @@
 import torch
 import np
 import time
+import os
 from functools import reduce
 from torch.autograd import Variable
 from cnn import CNNnet
@@ -100,9 +101,13 @@ else:
 
 time = localtime = time.asctime( time.localtime(time.time()) )
 #Externally Record Accuracy when done
-text_file = open(saved_model_name + ".txt", "w")
-text_file.write("Accuracy: " + final_acc + '\n' + time)
+my_path = os.path.abspath(os.path.dirname(__file__))
+path = '../logs/' + saved_model_name + '.txt'
+log_path = os.path.join(my_path, path)
+
+text_file = open( log_path, "w+")
+text_file.write("Accuracy: " + str(final_acc) + '\n' + str(time))
 text_file.close()
 
 #Externally Save Model:
-torch.save(model, '../saved_models/' + 'ds_cnn_' + saved_model_name)
+torch.save(model.state_dict(), '../saved_models/' + 'ds_cnn_' + saved_model_name)
