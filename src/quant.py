@@ -1,15 +1,10 @@
 import argparse
-# from utee import misc, quant, selector
 import torch
 import os
 import numpy as np
-# import torch.backends.cudnn as cudnn
-# cudnn.benchmark =True
-# from collections import OrderedDict
 from ds_cnn import DS_CNNnet
 
 model = DS_CNNnet(3)
-# load model and dataset fetcher
 thing = torch.load('/Users/dsm/code/SeniorDesign/SeniorDesign2018/saved_models/ds_cnn_three_two_one')
 
 model.load_state_dict(thing)
@@ -39,22 +34,15 @@ for v in model.state_dict():
     else: #fully connected layer weights or biases of any layer
       transposed_wts = np.transpose(var_values)
     with open(weight_path,'a') as f:
-    #   transposed_wts.tofile(f,sep=", ",format="%d")
-    #   yes = transposed_wts.data[0].view(1,-1)
       data = transposed_wts.data[0].tolist()
       if isinstance(data, list):
         if np.array(data).ndim > 1:
             concat_array = np.concatenate(data).ravel()
         else: 
             concat_array = data
-        i = concat_array
         s = ",".join(str(int(x)) for x in concat_array)
-        l = 2
       else: 
         s = str(data)
-
-    #   yes = ''.join(str(x) for x in transposed_wts.data[0].tolist())
-    #   yes  = ''.join(str(e) for e in transposed_wts.data[0].tolist())
       f.write( s )
       f.write('}\n')
     # convert back original range but quantized to 8-bits or 256 levels
