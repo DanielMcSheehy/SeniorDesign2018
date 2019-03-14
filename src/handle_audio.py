@@ -1,4 +1,5 @@
 import librosa
+import os
 import os.path
 import numpy as np
 import torch
@@ -33,6 +34,11 @@ class AudioPreprocessor(object):
         self.n_fft = n_fft
         self.hop_length = hop_length
         self.n_mfcc = n_mfcc
+        self.window = 'hamming'
+        self.win_length = 400 # 0.025*16000
+        self.fmin = 20
+        self.fmax = 4000
+        self.n_mels = 40
 
     def load_audio_file(self, path):
         """Loads audio file from downloaded audio file path 
@@ -74,18 +80,24 @@ class AudioPreprocessor(object):
             data (np.ndarray of shape (10,49)): 
 
         """
-        data = librosa.feature.mfcc(
-            data,
-            sr = self.sr,
-            hop_length = self.hop_length,
-            n_fft = self.n_fft,
-            n_mfcc = self.n_mfcc
-        )
+        # Test computational load of this or Hamming feature extraction:s
+        D = np.abs(librosa.stft(data, window=self.window, n_fft=self.n_fft, win_length=self.win_length, hop_length=self.hop_length))**2
+        S = librosa.feature.melspectrogram(S=D, y=data, n_mels=self.n_mels, fmin=self.fmin, fmax=self.fmax)
+        extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
+       
+        # extracted_features = librosa.feature.mfcc(
+        #     data,
+        #     sr = self.sr,
+        #     hop_length = self.hop_length,
+        #     n_fft = self.n_fft,
+        #     n_mfcc = self.n_mfcc
+        # )
+
         # If extracted audio shape is not exact, pad it with zeros:
-        if data.shape[0] != 10 or data.shape[1] != 49: 
-            length = 49 - data.shape[1]
-            data = np.concatenate((data, np.zeros((10,length))), axis = 1)
-        return data
+        if extracted_features.shape[0] != 10 or extracted_features.shape[1] != 49: 
+            length = 49 - extracted_features.shape[1]
+            extracted_features = np.concatenate((extracted_features, np.zeros((10,length))), axis = 1)
+        return extracted_features
 
     def split_data_set(self, data, training_size_percentage, 
                         testing_size_percentage, validation_size_percentage):
@@ -145,16 +157,15 @@ class AudioPreprocessor(object):
         if batch_size == 1: 
             return stacked_batchs, stacked_labels
         else: 
-            batch_list = torch.split(stacked_batchs, 64)
-            label_list = torch.split(stacked_labels, 64)
+            batch_list = torch.split(stacked_batchs, batch_size)
+            label_list = torch.split(stacked_labels, batch_size)
             return batch_list, label_list
 
-    def augment_data(self, data):
+    def augment_data(self, data, background_audio):
         for btx, batch in enumerate(data):
-            batch['input'] = sound_augmentation.augment_sound(batch['input'])
+            batch['input'] = sound_augmentation.augment_sound(batch['input'], background_audio)
         #! Randomize Data between Epochs:
-        #random.Random(random_seed).shuffle(augmented_batch_list)
-        #random.Random(random_seed).shuffle(label_list)
+        random.shuffle(data)
         return data
 
     def to_one_hot(self, y, depth=None):
@@ -197,3 +208,7 @@ class AudioPreprocessor(object):
                             data.append(input_obj)
         random.shuffle(data)
         return data, label
+
+    def benchmark(self):
+        CPU_Pct=str(os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
+        print("CPU Usage = " + CPU_Pct)
