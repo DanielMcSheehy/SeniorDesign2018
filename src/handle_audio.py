@@ -9,7 +9,7 @@ from torch.autograd import Variable
 import sound_augmentation as sound_augmentation
 
 class AudioPreprocessor(object):
-    def __init__(self, sr=16000, n_fft=1012, hop_length=327, n_mfcc=10): 
+    def __init__(self, sr=16000, n_fft=1012, hop_length=325, n_mfcc=10): 
         """Audio preprocessor interface that can upload downloaded audio files,
             do feature extraction (mfcc), and reorganize data to be used in 
             neural networks
@@ -19,6 +19,7 @@ class AudioPreprocessor(object):
             stays organized and consistant, do not alter. 
 
             Output size of data should be (10, 49)
+            (16000/325 = 49, x 10 features (n_mfcc))
 
         Args:
             
@@ -84,7 +85,6 @@ class AudioPreprocessor(object):
         D = np.abs(librosa.stft(data, window=self.window, n_fft=self.n_fft, win_length=self.win_length, hop_length=self.hop_length))**2
         S = librosa.feature.melspectrogram(S=D, y=data, n_mels=self.n_mels, fmin=self.fmin, fmax=self.fmax)
         extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
-       
         # extracted_features = librosa.feature.mfcc(
         #     data,
         #     sr = self.sr,
@@ -94,9 +94,11 @@ class AudioPreprocessor(object):
         # )
 
         # If extracted audio shape is not exact, pad it with zeros:
-        if extracted_features.shape[0] != 10 or extracted_features.shape[1] != 49: 
+        if extracted_features.shape[1] < 49: 
             length = 49 - extracted_features.shape[1]
             extracted_features = np.concatenate((extracted_features, np.zeros((10,length))), axis = 1)
+        elif extracted_features.shape[1] > 49: 
+             extracted_features = extracted_features[:][:,:-1]
         return extracted_features
 
     def split_data_set(self, data, training_size_percentage, 
@@ -164,7 +166,7 @@ class AudioPreprocessor(object):
     def augment_data(self, data, background_audio):
         for btx, batch in enumerate(data):
             batch['input'] = sound_augmentation.augment_sound(batch['input'], background_audio)
-        #! Randomize Data between Epochs:
+        # Randomize Data between Epochs:
         random.shuffle(data)
         return data
 
@@ -188,7 +190,7 @@ class AudioPreprocessor(object):
     def extract_audio_files(self, path, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
         ground_truth_vector= self.to_one_hot(ground_truth_vector)
-
+        #Todo: Add 10% silennce
         data = []
         label = {}
         for i, word in enumerate(wanted_words):

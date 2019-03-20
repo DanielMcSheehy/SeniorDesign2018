@@ -22,6 +22,9 @@ def test(net, testing_batch_array, truth_vector):
     for i, batch in enumerate(testing_batch_array):
         # Forward pass: Compute predicted y by passing batch to the model
         answer = net(batch[None, :, :, :])
+        softmax = torch.nn.Softmax()
+        confidence = softmax(answer)
+        percentage = torch.max(confidence, 1)[0].item()
         label = torch.max(truth_vector[i], 0)[1].view(1)
         n_correct += (torch.max(answer, 1)[1].view(1) == label).sum().item()
         n_total += batch_size

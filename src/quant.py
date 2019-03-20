@@ -15,7 +15,7 @@ path = '../_quant_weights/' + 'ds_cnn_three_two_one_' + 'weights.h'
 weight_path = os.path.join(my_path, path)
 
 open(weight_path, 'w+').close()
-
+o = model.state_dict()
 for v in model.state_dict():  
     var_name = str(v)
     var_values = model.state_dict()[v]
@@ -29,20 +29,10 @@ for v in model.state_dict():
     var_name = var_name.replace(':','_')
     with open(weight_path,'a') as f:
       f.write('#define '+var_name+' {')
-    if(len(var_values.shape)>2): #convolution layer weights
-      transposed_wts = np.transpose(var_values,(3,0,1,2))
-    else: #fully connected layer weights or biases of any layer
-      transposed_wts = np.transpose(var_values)
+    
+    transposed_wts = var_values.flatten()
     with open(weight_path,'a') as f:
-      data = transposed_wts.data[0].tolist()
-      if isinstance(data, list):
-        if np.array(data).ndim > 1:
-            concat_array = np.concatenate(data).ravel()
-        else: 
-            concat_array = data
-        s = ",".join(str(int(x)) for x in concat_array)
-      else: 
-        s = str(data)
+      s = ",".join(str(int(x)) for x in transposed_wts)
       f.write( s )
       f.write('}\n')
     # convert back original range but quantized to 8-bits or 256 levels
