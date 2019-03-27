@@ -49,13 +49,13 @@ background_audio = load_background_audio()
 
 # needed to reshape/organize testing set: 
 #! Not converting it to minibatch, just reorganizing the data
-t_set = testing_set
-testing_set_augmented = audio_manager.augment_data(t_set, background_audio)
-testing_set_augmented = audio_manager.feature_extraction(testing_set_augmented)
+# t_set = testing_set
+# testing_set_augmented = audio_manager.augment_data(t_set, background_audio)
+# testing_set_augmented = audio_manager.feature_extraction(testing_set_augmented)
 testing_set = audio_manager.feature_extraction(testing_set)
 
 testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
-testing_list_augmented, testing_label_list_augmented = audio_manager.convert_to_minibatches(testing_set_augmented, 1)
+# testing_list_augmented, testing_label_list_augmented = audio_manager.convert_to_minibatches(testing_set_augmented, 1)
 
 # needed to reshape/organize validation set: 
 validation_set = audio_manager.feature_extraction(validation_set)
@@ -78,12 +78,12 @@ for epoch_num in range(num_epochs):
     
     mini_batch_list, mini_batch_label = audio_manager.convert_to_minibatches(train_batch, 100)
     
-    # for i, batch in enumerate(mini_batch_list):
-    #     if IS_CUDA: 
-    #         batch, label = (Variable(batch)).cuda(), (Variable(mini_batch_label[i])).cuda()
-    #         train(model, batch, 64, label, learning_rate)
-    #     else: 
-    #         train(model, batch, 64, mini_batch_label[i], learning_rate)
+    for i, batch in enumerate(mini_batch_list):
+        if IS_CUDA: 
+            batch, label = (Variable(batch)).cuda(), (Variable(mini_batch_label[i])).cuda()
+            train(model, batch, 64, label, learning_rate)
+        else: 
+            train(model, batch, 64, mini_batch_label[i], learning_rate)
 
     if epoch_num % 3 == 0: 
         print("Testing Epoch #", epoch_num)
@@ -94,8 +94,8 @@ for epoch_num in range(num_epochs):
             # Testing against pure testing data set
             test(model, testing_list, testing_label_list)
             # Testing agaisnt augmented testing data set (for comparison): 
-            print("Now testing with an augmented testing set")
-            test(model, testing_list_augmented, testing_label_list_augmented)
+            # print("Now testing with an augmented testing set")
+            # test(model, testing_list_augmented, testing_label_list_augmented)
 
     # If halfway done through traning reduce learning rate:
     if round(num_epochs/(epoch_num + 1)) == 2: 
