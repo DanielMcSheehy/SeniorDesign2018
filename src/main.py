@@ -28,6 +28,7 @@ available_words = ['right', 'eight', 'cat',
 
 wanted_words = ['one', 'two', 'three']
 wanted_words.append('silence')
+wanted_words.append('unknown')
 
 # Make false if not using GPU
 IS_CUDA = False
@@ -41,7 +42,7 @@ if IS_CUDA:
 path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
 #path_to_dataset = '/home/utdesign/code/audio_files'
 
-data, labelDictionary = audio_manager.extract_audio_files(path_to_dataset, wanted_words)
+data, labelDictionary = audio_manager.generate_dataset(path_to_dataset, wanted_words, available_words)
 
 training_set, testing_set, validation_set = audio_manager.split_data_set(data, .80, .10, .10)
 

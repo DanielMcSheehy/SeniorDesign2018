@@ -188,7 +188,8 @@ class AudioPreprocessor(object):
         return batch, label
 
     def add_silence(self, data, silence_one_hot_encoded_vector, percentage_silence):
-        silence_audio, _ =  self.load_audio_file('../_background_noise_/silence.wav')
+        silence_path = os.path.join(os.path.dirname(__file__), '../_background_noise_/silence.wav')
+        silence_audio, _ =  self.load_audio_file(silence_path)
         silence_amount_to_add = round((len(data)*percentage_silence)/(1-percentage_silence))
         for _ in range(silence_amount_to_add):
             silence_obj = {
@@ -198,39 +199,49 @@ class AudioPreprocessor(object):
             data.append(silence_obj)
         return data
 
-    def extract_audio_files(self, path, wanted_words):
+    def add_unknown_words(self, path, data, wanted_words, available_words, label, unknown_percentage=0.1):
+        unknown_words = []
+        for word in available_words:
+            if word not in wanted_words:
+                unknown_words.append(word)
+        depth = round((len(data)*unknown_percentage)/((1-unknown_percentage)*len(unknown_words)))
+        return data + self.extract_audio_files(path, unknown_words, label, depth, False)
+
+    def generate_truth_vector(self, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
         ground_truth_vector= self.to_one_hot(ground_truth_vector)
        
-        data = []
         label = {}
         for i, word in enumerate(wanted_words):
             label[word] = ground_truth_vector[:,i]
         print(label)
-        for root, directories, files in os.walk(path):
-            for directory in directories:
-                if directory in wanted_words:
-                    print(path+ "/"+ directory)
-                    for root, directories, files in os.walk(path + "/" + directory):
-                        for file in files: 
-                            audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
-                            input_obj = {
-                                "input": audio,
-                                "label": label[directory],
-                            }
-                            data.append(input_obj)
+        return label
+    
+    def generate_dataset(self, path, wanted_words, available_words):
+        label = self.generate_truth_vector(wanted_words)
+        data =  self.extract_audio_files(path, wanted_words, label)
+        data = self.add_unknown_words(path, data, wanted_words, available_words, label, 0.1)
         data = self.add_silence(data, label['silence'], .1)
         random.shuffle(data)
         return data, label
 
-        def add_unknown_words(self, available_words, wanted_words):
-            unknown_words = []
-            for word in available_words:
-                if word not in wanted_words:
-                    unknown_words.append(word)
-            return unknown_words #!not yet
-        
-        
+    def extract_audio_files(self, path, wanted_words, label, depth=None, print_dir=True):
+        data = []
+        for root, directories, files in os.walk(path):
+            for directory in directories:
+                if directory in wanted_words:
+                    if print_dir: print(path+ "/"+ directory) 
+                    for root, directories, files in os.walk(path + "/" + directory):
+                        # this defaults to going through every file, unless depth is specified.
+                        for i in range(len(files) if not depth else depth):
+                            file = files[i]
+                            audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
+                            input_obj = {
+                                "input": audio,
+                                "label": label.get(directory, label["unknown"]), 
+                            }
+                            data.append(input_obj)
+        return data
  
     def benchmark(self):
         CPU_Pct=str(os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
