@@ -187,10 +187,21 @@ class AudioPreprocessor(object):
         batch, label = self.convert_to_minibatches(input_obj, 1)
         return batch, label
 
+    def add_silence(self, data, silence_one_hot_encoded_vector, percentage_silence):
+        silence_audio, _ =  self.load_audio_file('../_background_noise_/silence.wav')
+        silence_amount_to_add = round((len(data)*percentage_silence)/(1-percentage_silence))
+        for _ in range(silence_amount_to_add):
+            silence_obj = {
+                "input": silence_audio,
+                "label": silence_one_hot_encoded_vector,
+            }
+            data.append(silence_obj)
+        return data
+
     def extract_audio_files(self, path, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
         ground_truth_vector= self.to_one_hot(ground_truth_vector)
-        #Todo: Add 10% silennce
+       
         data = []
         label = {}
         for i, word in enumerate(wanted_words):
@@ -208,9 +219,19 @@ class AudioPreprocessor(object):
                                 "label": label[directory],
                             }
                             data.append(input_obj)
+        data = self.add_silence(data, label['silence'], .1)
         random.shuffle(data)
         return data, label
 
+        def add_unknown_words(self, available_words, wanted_words):
+            unknown_words = []
+            for word in available_words:
+                if word not in wanted_words:
+                    unknown_words.append(word)
+            return unknown_words #!not yet
+        
+        
+ 
     def benchmark(self):
         CPU_Pct=str(os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
         print("CPU Usage = " + CPU_Pct)

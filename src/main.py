@@ -27,12 +27,12 @@ available_words = ['right', 'eight', 'cat',
 #     'go', 'one', 'two', 'three']
 
 wanted_words = ['one', 'two', 'three']
-
+wanted_words.append('silence')
 
 # Make false if not using GPU
 IS_CUDA = False
 
-model = DS_CNNnet(len(wanted_words))
+model = DS_CNNnet(len(wanted_words)) 
 
 if IS_CUDA: 
     model = model.cuda()
@@ -49,19 +49,13 @@ background_audio = load_background_audio()
 
 # needed to reshape/organize testing set: 
 #! Not converting it to minibatch, just reorganizing the data
-# t_set = testing_set
-# testing_set_augmented = audio_manager.augment_data(t_set, background_audio)
-# testing_set_augmented = audio_manager.feature_extraction(testing_set_augmented)
 testing_set = audio_manager.feature_extraction(testing_set)
 
 testing_list, testing_label_list = audio_manager.convert_to_minibatches(testing_set, 1)
-# testing_list_augmented, testing_label_list_augmented = audio_manager.convert_to_minibatches(testing_set_augmented, 1)
 
 # needed to reshape/organize validation set: 
 validation_set = audio_manager.feature_extraction(validation_set)
 validation_list, validation_label_list = audio_manager.convert_to_minibatches(validation_set, 1)
-
-
 
 
 num_epochs = 1000
@@ -93,9 +87,6 @@ for epoch_num in range(num_epochs):
         else: 
             # Testing against pure testing data set
             test(model, testing_list, testing_label_list)
-            # Testing agaisnt augmented testing data set (for comparison): 
-            # print("Now testing with an augmented testing set")
-            # test(model, testing_list_augmented, testing_label_list_augmented)
 
     # If halfway done through traning reduce learning rate:
     if round(num_epochs/(epoch_num + 1)) == 2: 
