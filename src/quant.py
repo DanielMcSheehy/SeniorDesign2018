@@ -4,7 +4,7 @@ import os
 import numpy as np
 from ds_cnn import DS_CNNnet
 
-model = DS_CNNnet(3)
+model = DS_CNNnet(3) #! Make dynamic based on output size!
 thing = torch.load('/Users/dsm/code/SeniorDesign/SeniorDesign2018/saved_models/ds_cnn_three_two_one')
 
 model.load_state_dict(thing)
@@ -35,10 +35,11 @@ for v in model.state_dict():
       s = ",".join(str(int(x)) for x in transposed_wts)
       f.write( s )
       f.write('}\n')
+
+    #! Add testing on quantization:
+    
     # convert back original range but quantized to 8-bits or 256 levels
     var_values = var_values/(2**dec_bits)
-    # update the weights in tensorflow graph for quantizing the activations
-    # var_values = sess.run(tf.assign(v,var_values))
     print(var_name+' number of wts/bias: '+str(var_values.shape)+\
             ' dec bits: '+str(dec_bits)+\
             ' max: ('+str(var_values.max())+','+str(max_value)+')'+\

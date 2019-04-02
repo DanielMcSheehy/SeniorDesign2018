@@ -210,7 +210,6 @@ class AudioPreprocessor(object):
     def generate_truth_vector(self, wanted_words):
         ground_truth_vector = torch.arange(0,len(wanted_words))
         ground_truth_vector= self.to_one_hot(ground_truth_vector)
-       
         label = {}
         for i, word in enumerate(wanted_words):
             label[word] = ground_truth_vector[:,i]
@@ -219,7 +218,7 @@ class AudioPreprocessor(object):
     
     def generate_dataset(self, path, wanted_words, available_words):
         label = self.generate_truth_vector(wanted_words)
-        data =  self.extract_audio_files(path, wanted_words, label)
+        data = self.extract_audio_files(path, wanted_words, label)
         data = self.add_unknown_words(path, data, wanted_words, available_words, label, 0.1)
         data = self.add_silence(data, label['silence'], .1)
         random.shuffle(data)
