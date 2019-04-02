@@ -9,7 +9,8 @@ import sox
 def augment_sound(input_audio, background_audio):
     #TODO: Add aachen room impulse response:
     # https://www.iks.rwth-aachen.de/en/research/tools-downloads/databases/aachen-impulse-response-database/
-    with_shift = shift(input_audio)
+    #with_shift = shift(input_audio)
+    with_shift = input_audio
     with_bg_noise = add_background_noise(with_shift, background_audio)
     #Very slow: (Might not be used in future..)
     # with_reverb = add_reverb(with_bg_noise)
@@ -27,7 +28,7 @@ def load_background_audio():
 
 def add_background_noise(input_audio, background_audio):
     #TODO: Gaussian distribution num = min(10, max(0, random.gauss(3, 4)))
-    add_background_noise = True if random.uniform(0, 1) > 0.2 else False
+    add_background_noise = True if random.uniform(0, 1) > 0.2 else False # 80% of audio is augmented
     if add_background_noise:
         chosen_background_audio = background_audio[random.randint(0, len(background_audio)-1)]
         random_noise_level = random.uniform(0, 0.1)
