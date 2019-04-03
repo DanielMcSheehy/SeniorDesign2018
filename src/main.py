@@ -12,7 +12,8 @@ from sound_augmentation import load_background_audio
 
 audio_manager = AudioPreprocessor()
 
-available_words = ['right', 'eight', 'cat', 
+available_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador',
+    'right', 'eight', 'cat', 
     'tree', 'bed', 'happy', 
     'go', 'dog', 'no', 
     'wow', 'nine', 'left', 
@@ -26,7 +27,7 @@ available_words = ['right', 'eight', 'cat',
 #     'down', 'left', 'right',
 #     'go', 'one', 'two', 'three']
 
-wanted_words = ['one', 'two', 'three']
+wanted_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador']
 wanted_words.append('silence')
 wanted_words.append('unknown')
 
@@ -39,8 +40,8 @@ if IS_CUDA:
     model = model.cuda()
     torch.backends.cudnn.benchmark=True
 
-path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
-#path_to_dataset = '/home/utdesign/code/audio_files'
+#path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
+path_to_dataset = '/home/utdesign/code/Data_Samples_with_extra'
 
 data, labelDictionary = audio_manager.generate_dataset(path_to_dataset, wanted_words, available_words)
 
