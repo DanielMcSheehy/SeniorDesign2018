@@ -23,8 +23,8 @@ class DS_CNNnet(torch.nn.Module):
 
         self.dropout = torch.nn.Dropout(0.3)
 
-        self.pool1 = torch.nn.MaxPool2d(kernel_size = 2, stride = 2, padding=0)
-        self.fully_connected = torch.nn.Linear(64*3*20, output_size) 
+        self.pool1 = torch.nn.MaxPool2d(kernel_size = (7,40), stride = (1,1), padding=0)
+        self.fully_connected = torch.nn.Linear(64, output_size) 
     
     def forward(self, traning_data):
         conv1_relu = self.conv1(traning_data).clamp(min=0) #Relu
@@ -44,7 +44,7 @@ class DS_CNNnet(torch.nn.Module):
         drop_out = self.dropout(pointwise5)
 
         pool_layer = self.pool1(drop_out) 
-        reshaped_pool = pool_layer.view(-1, 64*3*20)
+        reshaped_pool = pool_layer.view(-1, 64)
 
         fully_connected = self.fully_connected(reshaped_pool)
         return fully_connected

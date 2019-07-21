@@ -23,10 +23,6 @@ available_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador',
     'down', 'six', 'yes', 
     'on', 'five', 'off', 'four']
 
-# wanted_words = ['on', 'off', 'stop', 
-#     'down', 'left', 'right',
-#     'go', 'one', 'two', 'three']
-
 wanted_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador']
 wanted_words.append('silence')
 wanted_words.append('unknown')
@@ -40,8 +36,8 @@ if IS_CUDA:
     model = model.cuda()
     torch.backends.cudnn.benchmark=True
 
-#path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
-path_to_dataset = '/home/utdesign/code/Data_Samples_with_extra'
+path_to_dataset = '/Users/dsm/Downloads/Data_Samples_with_extra'
+#path_to_dataset = '/home/utdesign/code/Data_Samples_with_extra'
 
 data, labelDictionary = audio_manager.generate_dataset(path_to_dataset, wanted_words, available_words)
 
@@ -67,6 +63,7 @@ for epoch_num in range(num_epochs):
     print('Training on epoch #', epoch_num, ' time: ', time.asctime( time.localtime(time.time()) ))
     # Have to redefine so we don't over write "training_set":
     train_set = training_set
+
     # Shuffles data, adds background noise, shifting, and possibly reverb
     train_set = audio_manager.augment_data(train_set, background_audio)
 
@@ -84,6 +81,7 @@ for epoch_num in range(num_epochs):
     if epoch_num % 3 == 0: 
         print("Testing Epoch #", epoch_num)
         if IS_CUDA:
+            #!testing_list = audio_manager.augment_data(testing_list, background_audio)
             testing_list_cuda, testing_label_list_cuda = (Variable(testing_list)).cuda(), (Variable(testing_label_list)).cuda()
             test(model, testing_list_cuda, testing_label_list_cuda)
         else: 

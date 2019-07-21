@@ -9,8 +9,8 @@ import sox
 def augment_sound(input_audio, background_audio):
     #TODO: Add aachen room impulse response:
     # https://www.iks.rwth-aachen.de/en/research/tools-downloads/databases/aachen-impulse-response-database/
-    #with_shift = shift(input_audio)
-    with_shift = input_audio
+    with_shift = shift(input_audio)
+    #with_shift = input_audio
     with_bg_noise = add_background_noise(with_shift, background_audio)
     #Very slow: (Might not be used in future..)
     # with_reverb = add_reverb(with_bg_noise)
@@ -37,9 +37,9 @@ def add_background_noise(input_audio, background_audio):
         result = input_audio
     return result
 
-def shift(input_audio):
+def shift(input_audio, test= False):
     # Percentage to be shifted: 
-    timeshift_fac = np.random.uniform(0, 0.10) # up to 10% of length
+    timeshift_fac = np.random.uniform(0, 0.10) if not test else 0.5 # up to 10% of length
     start = int(input_audio.shape[0] * timeshift_fac)
     if (start > 0):
         result = np.pad(input_audio,(start,0),mode='constant')[0:input_audio.shape[0]]

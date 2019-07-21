@@ -51,7 +51,7 @@ class AudioPreprocessor(object):
             y (bytes): encoded audio file.
 
         """
-        y, sr = librosa.load(path, sr=self.sr)
+        y, sr = librosa.load(path, sr=self.sr, duration=1)
         return y,sr
 
     def feature_extraction(self, data):
@@ -82,16 +82,16 @@ class AudioPreprocessor(object):
 
         """
         # Test computational load of this or Hamming feature extraction:s
-        D = np.abs(librosa.stft(data, window=self.window, n_fft=self.n_fft, win_length=self.win_length, hop_length=self.hop_length))**2
-        S = librosa.feature.melspectrogram(S=D, y=data, n_mels=self.n_mels, fmin=self.fmin, fmax=self.fmax)
-        extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
-        # extracted_features = librosa.feature.mfcc(
-        #     data,
-        #     sr = self.sr,
-        #     hop_length = self.hop_length,
-        #     n_fft = self.n_fft,
-        #     n_mfcc = self.n_mfcc
-        # )
+        # D = np.abs(librosa.stft(data, window=self.window, n_fft=self.n_fft, win_length=self.win_length, hop_length=self.hop_length))**2
+        # S = librosa.feature.melspectrogram(S=D, y=data, n_mels=self.n_mels, fmin=self.fmin, fmax=self.fmax)
+        # extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
+        extracted_features = librosa.feature.mfcc(
+            data,
+            sr = self.sr,
+            hop_length = self.hop_length,
+            n_fft = self.n_fft,
+            n_mfcc = self.n_mfcc
+        )
 
         # If extracted audio shape is not exact, pad it with zeros:
         if extracted_features.shape[1] < 49: 
