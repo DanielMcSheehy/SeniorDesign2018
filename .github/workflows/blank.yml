@@ -9,10 +9,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Python Syntax Checker
-      uses: cclauss/Find-Python-syntax-errors-action@v0.2.0
     - name: Test
       run: |
+        ls > test.txt
         ls
+        echo $(sha1sum .)
+        
     
 
