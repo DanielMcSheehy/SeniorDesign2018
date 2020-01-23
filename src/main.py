@@ -23,7 +23,8 @@ available_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador',
     'down', 'six', 'yes', 
     'on', 'five', 'off', 'four']
 
-wanted_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador']
+wanted_words = ['up', 'down']
+#wanted_words = ['Alexa', 'Hi Bixby', 'Luz', 'Mas', 'Menos', 'Ventilador']
 wanted_words.append('silence')
 wanted_words.append('unknown')
 

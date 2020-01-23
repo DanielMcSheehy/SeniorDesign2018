@@ -234,12 +234,13 @@ class AudioPreprocessor(object):
                         # this defaults to going through every file, unless depth is specified.
                         for i in range(len(files) if not depth else depth):
                             file = files[i]
-                            audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
-                            input_obj = {
-                                "input": audio,
-                                "label": label.get(directory, label["unknown"]), 
-                            }
-                            data.append(input_obj)
+                            if file[-4:]:
+                                audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
+                                input_obj = {
+                                    "input": audio,
+                                    "label": label.get(directory, label["unknown"]), 
+                                }
+                                data.append(input_obj)
         return data
  
     def benchmark(self):
