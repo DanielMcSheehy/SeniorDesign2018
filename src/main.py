@@ -13,25 +13,24 @@ from sound_augmentation import load_background_audio
 
 
 @click.command()
-@click.option('--path', default='/Users/danielmcsheehy/Downloads/Data Samples', help='path to data set')
-@click.option('--IS_CUDA', default=False, help='only use on cuda machines')
-def init(path, IS_CUDA):
+@click.option('--path', default='/Users/danielmcsheehy/Downloads/speech_commands_v0.01', help='path to data set')
+@click.option('--is_cuda', default=False, help='only use on cuda machines')
+def init(path, is_cuda):
+    global time
     audio_manager = AudioPreprocessor()
-
-    available_words = ['Alexa', 'Hi Bixby',
-                       'Luz', 'Mas', 'Menos', 'Ventilador']
-    wanted_words = ['Alexa', 'Luz', 'Menos']
+    available_words = [d for d in os.listdir(path) if os.path.isdir(d)]
+    wanted_words = ['down', 'up']
     wanted_words.append('silence')
     wanted_words.append('unknown')
 
     model = DS_CNNnet(len(wanted_words))
 
-    if IS_CUDA:
+    if is_cuda:
         model = model.cuda()
         torch.backends.cudnn.benchmark = True
 
-    path_to_dataset = '/Users/danielmcsheehy/Downloads/Data Samples'
-    #path_to_dataset = '/Users/dsm/Downloads/speech_commands_v0.01'
+    # path_to_dataset = '/Users/danielmcsheehy/Downloads/Data Samples'
+    path = '/Users/danielmcsheehy/Downloads/speech_commands_v0.01'
     #path_to_dataset = '/home/utdesign/code/audio_files'
 
     data, labelDictionary = audio_manager.generate_dataset(
@@ -71,7 +70,7 @@ def init(path, IS_CUDA):
             train_batch, 100)
 
         for i, batch in enumerate(mini_batch_list):
-            if IS_CUDA:
+            if is_cuda:
                 batch, label = (Variable(batch)).cuda(
                 ), (Variable(mini_batch_label[i])).cuda()
                 train(model, batch, 64, label, learning_rate)
@@ -80,7 +79,7 @@ def init(path, IS_CUDA):
 
         if epoch_num % 3 == 0:
             print("Testing Epoch #", epoch_num)
-            if IS_CUDA:
+            if is_cuda:
                 testing_list_cuda, testing_label_list_cuda = (
                     Variable(testing_list)).cuda(), (Variable(testing_label_list)).cuda()
                 test(model, testing_list_cuda, testing_label_list_cuda)
@@ -95,7 +94,7 @@ def init(path, IS_CUDA):
     saved_model_name = reduce((lambda x, y: y + '_' + x), wanted_words)
 
     print("Final validation of model " + saved_model_name + ":")
-    if IS_CUDA:
+    if is_cuda:
         validation_list_cuda, validation_label_list_cuda = (
             Variable(validation_list)).cuda(), (Variable(validation_label_list)).cuda()
         final_acc = test(model, validation_list_cuda,
