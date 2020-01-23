@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cd src
-# nohup python3 -u ./main.py &
-screen -L python3 main.py
+# install 
+pip3 install requirements.txt
+
+# run 
+python3 src/main.py
 

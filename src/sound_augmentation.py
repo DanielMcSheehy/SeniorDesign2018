@@ -3,7 +3,7 @@ import random
 import os.path
 import librosa
 from pysndfx import AudioEffectsChain
-import sox 
+# import sox 
 
 
 def augment_sound(input_audio, background_audio):
