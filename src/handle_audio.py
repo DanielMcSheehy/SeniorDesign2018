@@ -8,8 +8,9 @@ from torch import IntTensor
 from torch.autograd import Variable
 import sound_augmentation as sound_augmentation
 
+
 class AudioPreprocessor(object):
-    def __init__(self, sr=16000, n_fft=1012, hop_length=325, n_mfcc=10): 
+    def __init__(self, sr=16000, n_fft=1012, hop_length=325, n_mfcc=10):
         """Audio preprocessor interface that can upload downloaded audio files,
             do feature extraction (mfcc), and reorganize data to be used in 
             neural networks
@@ -22,7 +23,7 @@ class AudioPreprocessor(object):
             (16000/325 = 49, x 10 features (n_mfcc))
 
         Args:
-            
+
 
         Attributes:
             sr (int): Sampling rate to convert audio.
@@ -36,7 +37,7 @@ class AudioPreprocessor(object):
         self.hop_length = hop_length
         self.n_mfcc = n_mfcc
         self.window = 'hamming'
-        self.win_length = 400 # 0.025*16000
+        self.win_length = 400  # 0.025*16000
         self.fmin = 20
         self.fmax = 4000
         self.n_mels = 40
@@ -52,11 +53,11 @@ class AudioPreprocessor(object):
 
         """
         y, sr = librosa.load(path, sr=self.sr, duration=1)
-        return y,sr
+        return y, sr
 
     def feature_extraction(self, data):
         extracted_data = []
-        for audio in data: 
+        for audio in data:
             extracted_data.append(
                 {
                     'input': self.compute_mfccs(audio['input']),
@@ -87,22 +88,23 @@ class AudioPreprocessor(object):
         # extracted_features = librosa.feature.mfcc(S=librosa.power_to_db(S), n_mfcc=self.n_mfcc)
         extracted_features = librosa.feature.mfcc(
             data,
-            sr = self.sr,
-            hop_length = self.hop_length,
-            n_fft = self.n_fft,
-            n_mfcc = self.n_mfcc
+            sr=self.sr,
+            hop_length=self.hop_length,
+            n_fft=self.n_fft,
+            n_mfcc=self.n_mfcc
         )
 
         # If extracted audio shape is not exact, pad it with zeros:
-        if extracted_features.shape[1] < 49: 
+        if extracted_features.shape[1] < 49:
             length = 49 - extracted_features.shape[1]
-            extracted_features = np.concatenate((extracted_features, np.zeros((10,length))), axis = 1)
-        elif extracted_features.shape[1] > 49: 
-             extracted_features = extracted_features[:][:,:-1]
+            extracted_features = np.concatenate(
+                (extracted_features, np.zeros((10, length))), axis=1)
+        elif extracted_features.shape[1] > 49:
+            extracted_features = extracted_features[:][:, :-1]
         return extracted_features
 
-    def split_data_set(self, data, training_size_percentage, 
-                        testing_size_percentage, validation_size_percentage):
+    def split_data_set(self, data, training_size_percentage,
+                       testing_size_percentage, validation_size_percentage):
         """Splits dataset into training, testing, and validation data sets. 
             Splits it up by percents: 80%, 10%, 10% => (.8, .1, .1)
 
@@ -118,11 +120,11 @@ class AudioPreprocessor(object):
         validation_set_size = round(testing_size_percentage*len(data))
 
         training_set = data[:training_set_size]
-        testing_set = data[training_set_size: training_set_size + testing_set_size]
+        testing_set = data[training_set_size: training_set_size +
+                           testing_set_size]
         validation_set = data[:validation_set_size]
         return training_set, testing_set, validation_set
 
-    
     def convert_to_minibatches(self, data, batch_size):
         """Converts array of Mfcc feature extracted data into
             batch_size sized batches
@@ -143,11 +145,11 @@ class AudioPreprocessor(object):
         batch_list = []
         label_list = []
 
-        # If data is not an array, converts it to one. 
+        # If data is not an array, converts it to one.
         if not type(data) in (tuple, list):
             data = [data]
 
-        for item in data: 
+        for item in data:
             batch = torch.from_numpy(np.array(item['input'])).float()
             batch = batch[None, :, :]
             label = item['label']
@@ -156,16 +158,17 @@ class AudioPreprocessor(object):
         stacked_batchs = torch.stack(batch_list)
         stacked_labels = torch.stack(label_list)
         # Instead of array of sized batches, just returns entire stacked tensor
-        if batch_size == 1: 
+        if batch_size == 1:
             return stacked_batchs, stacked_labels
-        else: 
+        else:
             batch_list = torch.split(stacked_batchs, batch_size)
             label_list = torch.split(stacked_labels, batch_size)
             return batch_list, label_list
 
     def augment_data(self, data, background_audio):
         for btx, batch in enumerate(data):
-            batch['input'] = sound_augmentation.augment_sound(batch['input'], background_audio)
+            batch['input'] = sound_augmentation.augment_sound(
+                batch['input'], background_audio)
         # Randomize Data between Epochs:
         random.shuffle(data)
         return data
@@ -174,12 +177,13 @@ class AudioPreprocessor(object):
         y_tensor = y.data if isinstance(y, Variable) else y
         y_tensor = y_tensor.type(torch.LongTensor).view(-1, 1)
         depth = depth if depth is not None else int(torch.max(y_tensor)) + 1
-        y_one_hot = torch.zeros(y_tensor.size()[0], depth).scatter_(1, y_tensor, 1)
+        y_one_hot = torch.zeros(
+            y_tensor.size()[0], depth).scatter_(1, y_tensor, 1)
         y_one_hot = y_one_hot.view(*(tuple(y.shape) + (-1,)))
         return Variable(y_one_hot) if isinstance(y, Variable) else y_one_hot
-    
+
     def get_single_batch(self, path, label_arr):
-        audio =  self.load_audio_file(path)[0]
+        audio = self.load_audio_file(path)[0]
         input_obj = {
             "input": self.compute_mfccs(audio),
             "label": torch.tensor(label_arr),
@@ -188,9 +192,11 @@ class AudioPreprocessor(object):
         return batch, label
 
     def add_silence(self, data, silence_one_hot_encoded_vector, percentage_silence):
-        silence_path = os.path.join(os.path.dirname(__file__), '../_background_noise_/silence.wav')
-        silence_audio, _ =  self.load_audio_file(silence_path)
-        silence_amount_to_add = round((len(data)*percentage_silence)/(1-percentage_silence))
+        silence_path = os.path.join(os.path.dirname(
+            __file__), '../_background_noise_/silence.wav')
+        silence_audio, _ = self.load_audio_file(silence_path)
+        silence_amount_to_add = round(
+            (len(data)*percentage_silence)/(1-percentage_silence))
         for _ in range(silence_amount_to_add):
             silence_obj = {
                 "input": silence_audio,
@@ -204,22 +210,24 @@ class AudioPreprocessor(object):
         for word in available_words:
             if word not in wanted_words:
                 unknown_words.append(word)
-        depth = round((len(data)*unknown_percentage)/((1-unknown_percentage)*len(unknown_words)))
+        depth = round((len(data)*unknown_percentage) /
+                      ((1-unknown_percentage)*len(unknown_words)))
         return data + self.extract_audio_files(path, unknown_words, label, depth, False)
 
     def generate_truth_vector(self, wanted_words):
-        ground_truth_vector = torch.arange(0,len(wanted_words))
-        ground_truth_vector= self.to_one_hot(ground_truth_vector)
+        ground_truth_vector = torch.arange(0, len(wanted_words))
+        ground_truth_vector = self.to_one_hot(ground_truth_vector)
         label = {}
         for i, word in enumerate(wanted_words):
-            label[word] = ground_truth_vector[:,i]
+            label[word] = ground_truth_vector[:, i]
         print(label)
         return label
-    
+
     def generate_dataset(self, path, wanted_words, available_words):
         label = self.generate_truth_vector(wanted_words)
         data = self.extract_audio_files(path, wanted_words, label)
-        data = self.add_unknown_words(path, data, wanted_words, available_words, label, 0.1)
+        data = self.add_unknown_words(
+            path, data, wanted_words, available_words, label, 0.1)
         data = self.add_silence(data, label['silence'], .1)
         random.shuffle(data)
         return data, label
@@ -229,20 +237,23 @@ class AudioPreprocessor(object):
         for root, directories, files in os.walk(path):
             for directory in directories:
                 if directory in wanted_words:
-                    if print_dir: print(path+ "/"+ directory) 
+                    if print_dir:
+                        print(path + "/" + directory)
                     for root, directories, files in os.walk(path + "/" + directory):
                         # this defaults to going through every file, unless depth is specified.
                         for i in range(len(files) if not depth else depth):
                             file = files[i]
                             if file[-4:]:
-                                audio, _ = self.load_audio_file(path + "/" + directory+"/"+file)
+                                audio, _ = self.load_audio_file(
+                                    path + "/" + directory+"/"+file)
                                 input_obj = {
                                     "input": audio,
-                                    "label": label.get(directory, label["unknown"]), 
+                                    "label": label.get(directory, label["unknown"]),
                                 }
                                 data.append(input_obj)
         return data
- 
+
     def benchmark(self):
-        CPU_Pct=str(os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
+        CPU_Pct = str(
+            os.popen('''ps -A -o %cpu | awk '{s+=$1} END {print s "%"}' ''').readline())
         print("CPU Usage = " + CPU_Pct)

@@ -1,0 +1,4 @@
+#!/Users/danielmcsheehy/code/SeniorDesign2018/venv-3.6/bin/python3.6
+import flattener.core
+
+flattener.core.main()
